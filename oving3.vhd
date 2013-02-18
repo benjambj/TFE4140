@@ -37,46 +37,55 @@ end oving3;
 architecture oving3 of oving3 is  
 
 -- fails(3) == d_failed, fails(2) == c_failed, fails(1) == b_failed, fails(0) == a_failed
-signal fails: std_logic_vector(3 downto 0) := "0000";
-signal t_fails : std_logic_vector(3 downto 0) := "0000";
-signal y_t: std_logic := '0';
-signal status_t: std_logic_vector(2 downto 0) := "000";
+-- changed semantics to working instead of fails hahaha
+signal working: std_logic_vector(3 downto 0);
+signal t_working : std_logic_vector(3 downto 0);
+signal y_t: std_logic;
+signal status_t: std_logic_vector(2 downto 0);
+
+component selector is
+	port ( mcu : in std_logic_vector(3 downto 0);
+			 active : in std_logic_vector(3 downto 0);
+			 y : out std_logic);
+end component;
 
 begin
 	
-with fails select
-	y_t <= 	(a and b) or (c and d) when "0000",
-			(b and c) or (b and d) or (c and d) when "0001",
-			(a and c) or (a and d) or (c and d) when "0010",
-			(a and b) or (a and d) or (b and d) when "0100",
-			(a and b) or (a and c) or (b and c) when "1000",
-			(c and d) when "0011",
-			(b and d) when "0101",
-			(b and c) when "1001",
-			(a and d) when "0110",
-			(a and c) when "1010",
-			(a and b) when "1100",
-	 		'0' when others;
+--with working select
+--	y_t <= 	(a and b) or (c and d) when "1111",
+--				(b and c) or (b and d) or (c and d) when "1110",
+--				(a and c) or (a and d) or (c and d) when "1101",
+--				(a and b) or (a and d) or (b and d) when "1011",
+--				(a and b) or (a and c) or (b and c) when "0111",
+--				(c and d) when "1100",
+--				(b and d) when "1010",
+--				(b and c) when "0110",
+--				(a and d) when "1001",
+--				(a and c) when "0101",
+--				(a and b) when "0011",
+--				'0' when others;
+sel : component selector
+	port map (mcu(0) => a, mcu(1) => b, mcu(2) => c, mcu(3) => d, active => working, y => y_t);
 
 			 
-t_fails <= fails or ((d xor y_t) & (c xor y_t) & (b xor y_t) & (a xor y_t));
+t_working <= working and ((not (d xor y_t)) & (not (c xor y_t)) & (not (b xor y_t)) & (not (a xor y_t)));
 
 																										
-with t_fails select
-	status_t <= "000" when "0000",
-				"001" when "0001" | "0010" | "0100" | "1000",
-	    		"010" when "0011" | "0101" | "1001" | "0110" | "1010" | "1100",
+with t_working select
+	status_t <= "000" when "1111",
+				"001" when "1110" | "1101" | "1011" | "0111",
+	    		"010" when "1100" | "1010" | "0110" | "1001" | "0101" | "0011",
 				"111" when others;
 
 state_update: process(clk) is
 begin
 	if clk'event and clk = '1' then
 		if rst = '1' then
-			fails <= "0000";
+			working <= "1111";
 			y <= '0';  
 			status <= "000";
 		else
-			fails <= fails or t_fails;
+			working <= working and t_working;
 			y <= y_t;		   
 			status <= status_t;
 		end if;	
