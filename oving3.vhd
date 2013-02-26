@@ -68,24 +68,33 @@ sel : component selector
 	port map (mcu(0) => a, mcu(1) => b, mcu(2) => c, mcu(3) => d, active => working, y => y_t);
 
 			 
-t_working <= working and ((not (d xor y_t)) & (not (c xor y_t)) & (not (b xor y_t)) & (not (a xor y_t)));
+t_working <= working or (((d xor y_t)) & ((c xor y_t)) & ((b xor y_t)) & ((a xor y_t)));
 
-																										
+with t_working select				
+status_t(0) <= '0' when "0000" | "1100" | "1010" | "0110" | "1001" | "0101" | "0011",
+					'1' when others;
+					
 with t_working select
-	status_t <= "000" when "1111",
-				"001" when "1110" | "1101" | "1011" | "0111",
-	    		"010" when "1100" | "1010" | "0110" | "1001" | "0101" | "0011",
-				"111" when others;
+status_t(1) <= '0' when "0000" | "0001" | "0010" | "0100" | "1000",
+					'1' when others;
+		
+status_t(2) <= status_t(1) and status_t(0);
+				
+--with t_working select
+--	status_t <= "000" when "0000",
+--				"001" when "0001" | "0010" | "0100" | "1000",
+--	    		"010" when "1100" | "1010" | "0110" | "1001" | "0101" | "0011",
+--				"111" when others;
 
 state_update: process(clk) is
 begin
 	if clk'event and clk = '1' then
 		if rst = '1' then
-			working <= "1111";
+			working <= "0000";
 			y <= '0';  
 			status <= "000";
 		else
-			working <= working and t_working;
+			working <= t_working;
 			y <= y_t;		   
 			status <= status_t;
 		end if;	
