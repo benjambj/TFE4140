@@ -80,6 +80,7 @@ begin
 				assert voted_data = word(0)(i) report "Erroneous vote" severity failure;
 			end loop;
 			
+			
 			-- Allow status to be sent
 			wait for clk_period; 
 			assert voted_data = '0' report "Should not have status all fail" severity failure;
@@ -87,6 +88,9 @@ begin
 			assert voted_data = '0' report "Should not have status two fail" severity failure;
 			wait for clk_period; 
 			assert voted_data = '0' report "Should not have status one fail" severity failure;
+			
+			assert false report "Case 1 successfull" severity note;
+			
 			
 		-- Case 2: one byte differs in final bit
 			word := ("01010101", "01010101", "01010101", "01010100"); 
@@ -114,7 +118,82 @@ begin
 			wait for clk_period; 
 			assert voted_data = '1'report "Should have status one fail" severity failure;
 				
+			assert false report "Case 2 successfull" severity note;
+				
+		-- Case 3: fist bit differs
+			word := ("01010101", "01010101", "01010101", "11010101"); 
+			di_ready <= '1';
+			for j in 0 to 3 loop
+				mp_data(j) <= word(j)(7);
+			end loop;
+			wait for clk_period; 
+			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			di_ready <= '0';
+			for i in 6 downto 0 loop
+				for j in 0 to 3 loop
+					mp_data(j) <= word(j)(i);
+				end loop;
+				wait for clk_period; 
+				assert voted_data = word(0)(i) report "Erroneous vote" severity failure;
+			end loop;
 			
+			-- Allow status to be sent
+			
+			wait for clk_period; 
+			assert voted_data = '0' report "Should not have status all fail" severity failure;
+			wait for clk_period; 
+			assert voted_data = '0' report "Should not have status two fail" severity failure;
+			wait for clk_period; 
+			assert voted_data = '1'report "Should have status one fail" severity failure;
+			
+			assert false report "Case 3 successfull" severity note;
+				
+		--  Case 4: voter must not be destroyed while no real data is ready
+			di_ready <= '0';
+			word := ("00010101", "01011101", "01010111", "01010000"); 
+			reset <= '1';
+			wait for clk_period*2;
+			reset <= '0';
+			
+			for j in 0 to 3 loop
+				mp_data(j) <= word(j)(7);
+			end loop;
+			wait for clk_period;	 
+			for i in 6 downto 0 loop
+				for j in 0 to 3 loop
+					mp_data(j) <= word(j)(i);
+				end loop;
+				wait for clk_period;
+			end loop;
+		
+		-- Repeat case 1: all bytes are the same.
+			word := ("01010101", "01010101", "01010101", "01010101"); 
+			di_ready <= '1';
+			for j in 0 to 3 loop
+				mp_data(j) <= word(j)(7);
+			end loop;
+			wait for clk_period;	 
+			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			di_ready <= '0';
+			for i in 6 downto 0 loop
+				for j in 0 to 3 loop
+					mp_data(j) <= word(j)(i);
+				end loop;
+				wait for clk_period;
+				assert voted_data = word(0)(i) report "Erroneous vote" severity failure;
+			end loop;
+					
+			-- Allow status to be sent
+			wait for clk_period; 
+			assert voted_data = '0' report "Should not have status all fail" severity failure;
+			wait for clk_period; 
+			assert voted_data = '0' report "Should not have status two fail" severity failure;
+			wait for clk_period; 
+			assert voted_data = '0' report "Should not have status one fail" severity failure;
+					assert voted_data = '0' report "Should not have status one fail" severity failure;
+			
+			assert false report "Case 4 successfull" severity note;
+
 		wait;
 	end process;													 
 		
