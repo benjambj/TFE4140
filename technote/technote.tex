@@ -3,6 +3,7 @@
 \usepackage{graphicx,amsmath,amssymb,url,xspace}
 \usepackage[utf8]{inputenc}
 \usepackage[colorlinks=true]{hyperref}
+\usepackage{parskip}
 \newcommand{\eg}{e.g.,\xspace}
 \newcommand{\bigeg}{E.g.,\xspace}
 \newcommand{\etal}{\textit{et~al.\xspace}}
@@ -45,9 +46,8 @@ following critera:
 %Evaluation criteria
 \item Area
 \item Speed
-\item Genericity
+\item Genericalness
 \item Readability
-\item Transferrability to ASIC?
 
 \end{itemize}
 
@@ -57,7 +57,7 @@ The first implementation represented the states discussed in
 \autoref{sec:task1} explicitly with a custom VHDL state type, and had
 a case statement over a state variable which implemented the logic of
 each case. This resulted in approximately 300 lines of VHDL code, and
-synthesized into 98 LUTs with a maximum cloock frequency of 291.3
+synthesised into 98 LUTs with a maximum clock frequency of 291.3
 MHz. It was, as such, hard to read, gigantic, and overall a horrendous
 design. Nevertheless, we were taught a bit about how NOT to write VHDL
 programs.
@@ -94,37 +94,57 @@ down to using only 3 LUTs, which resulted in a total circuit size of
 10 LUTs. The speed of the circuit was 360 MHz, so this design is
 superior in these aspects. It is, however, somewhat harder to read, as
 the correct functioning of the expressions in the voting logic is not
-necessarily obvious. In the 
+necessarily obvious. In the previous solution, it was a lot easier to
+convince oneself of correctness. This final solution was also a lot
+less generic than the one using addition; in that solution, adding
+another input would not change the algorithm, while this solution used
+an algorithm specific to four input bits. 
 
-Tradeoffs:
-
-\begin{itemize}
-
-%Evaluation criteria
-\item Area
-\item Speed
-\item Genericity
-\item Readability
-\item Transferrability to ASIC?
-
-%Solutions:
-\item Calculating the error tags concurrently with the voted output or
-  based on the voted output.
-\item Algorithm for voting:
-  - Sum the numbers
-  - Using LUTs explicitly, taking care of implicit ``this just works''-cases 
-  - Simple case-statement
-  - Explicit state machine
-\item Output -  count versus mux
-  - One bit for each, work/fail
-  - 
-  
-
-\end{itemize}
+In addition to the techniques used in these solutions, there are other
+variants which could be considered. For instance, instead of
+calculating the error tags for the different microcontrollers by
+looking at whether or not they differ from the voted output, one could
+calculate this directly from the input and current failure state. This
+should lead to a faster circuit as you do not need to wait for the
+voting computation to perform the next-state computation, but we
+expect the resulting circuit to be significantly bigger as we believe
+the logic for calculating each error tag in this way would be larger
+than the 1 LUT required for our current solution.
 
 \section{Task 3}
 \label{sec:task3}
 
+We have decided to solve this by performing the voting on the fly. We
+use an integer state variable to keep track of which bit emission
+stage we are in, where the value 0 represents ``not sending data'' and
+a value i > 0 represents ``sending data bit i''. The input signals
+from the microcontrollers are propagated into our one bit voter
+implementation, which yields a status and vote result output. While in
+state 0, we do not set do\_ready, and just emits whatever is
+calculated from the voter. When in this stage we cannot assume that
+the data from the microcontrollers should be consistent, so the input
+to the voter is set to 0 when we are not getting data from the
+microcontroller so that no discrepancies are recorded
+unnecessarily. When we observe that di\_ready goes high, we set
+do\_ready the same cycle and increment the sending state to 1. When
+di\_ready goes high, the input to the voter is set to be the
+microcontroller signals. Thus, the desired output bit is ready when
+the clock transition occurs, so the output of the voter can just be
+propagated through as the output of the liaison. When we reach bit
+send stage 8, we set the inputs to the voting unit to 0 as the input
+from the microcontrollers must be disregarded half a cycle later. When
+we reach bit stage 9, we start sending the three status bits one cycle
+at a time. When we are about to reach bit stage 12, we have sent all
+of data, and if there is no new data from the microcontrollers (as
+indicated by di\_ready) we return to the initial bit sending
+state. The error tags are maintained, however, as these are separate
+memory elements.
 
+An alternative might be to store the calculated data in a register, to
+be sent later. This might yield more relaxed timing constraints, which
+in turn should give a circuit able to operate at higher clock
+frequencies. In turn, it is likely to be a bit bigger, as the register
+write-enable logic has to be written in addition to the
+output-selection logic.
 
 \end{document}
