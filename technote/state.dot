@@ -1,0 +1,63 @@
+digraph {
+
+s0 [label="Initial"]
+sysbrok [label="System broken"]
+
+s0 -> s0
+s0 -> a
+s0 -> b
+s0 -> c
+s0 -> d
+
+a -> ab
+a -> ac
+a -> ad
+
+b -> ab
+b -> bc
+b -> bd
+
+c -> ac
+c -> bc
+c -> cd
+
+d -> ad
+d -> bd
+d -> cd
+
+
+s0 -> ab
+s0 -> ac
+s0 -> ad
+s0 -> bc
+s0 -> bd
+s0 -> cd
+
+s0 -> sysbrok
+
+a -> sysbrok
+b -> sysbrok
+c -> sysbrok
+d -> sysbrok
+
+ab -> sysbrok
+ac -> sysbrok
+ad -> sysbrok
+bc -> sysbrok
+bd -> sysbrok
+cd -> sysbrok
+
+a -> s0
+b -> s0
+c -> s0
+d -> s0
+
+ab -> s0
+ac -> s0
+ad -> s0
+bc -> s0
+bd -> s0
+cd -> s0
+
+sysbrok -> s0
+}

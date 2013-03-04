@@ -5,6 +5,8 @@ NAME=technote
 
 # Find all .tex-files in current dir
 FILES=$(filter %.tex, $(shell /usr/bin/find .))
+DOTFILES=$(filter %.dot, $(shell /usr/bin/find .))
+DOTPDFS=$(patsubst %.dot, %.pdf, ${DOTFILES})
 TEMP_EXTS=aux log toc idx ind ilg lot lof bbl blg brf out
 TEMPS=$(patsubst %.tex, %, ${FILES})
 
@@ -28,6 +30,11 @@ ${NAME}.idx: ${NAME}.tex
 
 bibliography.bbl:
 	${BIBTEX} ${NAME}
+
+dot: ${DOTPDFS}
+
+%.pdf: %.dot
+	dot -Tpdf -o $*.pdf $*.dot
 
 # Loop though all source files and remove name concated with any temp-extension
 clean:
