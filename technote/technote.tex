@@ -16,6 +16,115 @@
 \begin{document}
 \maketitle
 
+\section{Task 1}
+\label{sec:task1}
+We need 12 states to implement the error tagging, since any
+combination of the microcontrollers can fail. Since three or more
+failures indicate a broken system, we can merge the states
+corresponding to these scenarios into one ``System broken'' state,
+which means that we do not need the full 16 states. However, since 3
+bits are not enough to represent 12 states, we need 4 bits anyways.
+
+From the initial state, you can move to the states a, b, c, d and
+System broken, if either microcontroller a, b, c, d fail or two
+microcontrollers fail simultaneously (in which case you do not know
+which result to trust, and the system has to be considered
+broken). From the states a, b, c and d, you can move to states
+representing two microcontrollers having failed. For instance, from
+state a you can move to state ab, ac or ad if b, c or d fails,
+respectively. From any state you can move back to the Initial state if
+the reset signal state is set.
+
+\section{Task 2}
+\label{sec:task2}
+
+In the following evaluation of our solutions, we will consider the
+following critera:
+\begin{itemize}
+
+%Evaluation criteria
+\item Area
+\item Speed
+\item Genericity
+\item Readability
+\item Transferrability to ASIC?
+
+\end{itemize}
+
+In our group, we considered four different implementations. 
+
+The first implementation represented the states discussed in
+\autoref{sec:task1} explicitly with a custom VHDL state type, and had
+a case statement over a state variable which implemented the logic of
+each case. This resulted in approximately 300 lines of VHDL code, and
+synthesized into 98 LUTs with a maximum cloock frequency of 291.3
+MHz. It was, as such, hard to read, gigantic, and overall a horrendous
+design. Nevertheless, we were taught a bit about how NOT to write VHDL
+programs.
+
+The second implementation tried to alleviate this by writing the logic
+outside of the sequential process with select statements for
+determining the voted output, the status and the next internal
+state. In this implementation (as well as the next two), the state was
+encoded with a four-bit vector instead of using a state type. This
+implementation was significantly shorter, and quite simple to read. It
+yielded 19 LUTs, and a clock speed of 280 MHz. It was, however, not
+generic in the sense that adding a fifth microcontroller would require
+doubling the cases of the different select statements. 
+
+The third implementation used a clever algorithm for performing the
+voting, based on summing the number of valid signals with each value
+and checking which value was highest, (\ie sum(validOnes) >
+sum(validZeroes)). It also used summations over the number of working
+signals (\ie our state) to calculate the status output signal. This
+design gave us 19 LUTs and a clock frequency of 300 MHz, and was as
+such similar to the previous solution. The previous solution computed
+the status output signals by using three LUTs, converting the four-bit
+state signal into each bit of the status. This solution used more due
+to the addition circuitry being more complex as well as also requiring
+three LUTs for converting the sum into each of the status bits. When
+we combined these two designs (\ie using the sum algorithm for voting
+and the plain LUT approach for calculating the status and new internal
+state), we ended up with 14 LUTs and a clock frequency of 320 MHz. 
+
+The final implementation took the approach of coding the desired LUTs
+of the voter explicitly, taking advantage of structures intrinsic to
+the problem. By hand-coding this, we were able to get the voting logic
+down to using only 3 LUTs, which resulted in a total circuit size of
+10 LUTs. The speed of the circuit was 360 MHz, so this design is
+superior in these aspects. It is, however, somewhat harder to read, as
+the correct functioning of the expressions in the voting logic is not
+necessarily obvious. In the 
+
+Tradeoffs:
+
+\begin{itemize}
+
+%Evaluation criteria
+\item Area
+\item Speed
+\item Genericity
+\item Readability
+\item Transferrability to ASIC?
+
+%Solutions:
+\item Calculating the error tags concurrently with the voted output or
+  based on the voted output.
+\item Algorithm for voting:
+  - Sum the numbers
+  - Using LUTs explicitly, taking care of implicit ``this just works''-cases 
+  - Simple case-statement
+  - Explicit state machine
+\item Output -  count versus mux
+  - One bit for each, work/fail
+  - 
+  
+
+\end{itemize}
+
+\section{Task 3}
+\label{sec:task3}
+
 
 
 \end{document}
