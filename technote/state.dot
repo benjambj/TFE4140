@@ -26,13 +26,6 @@ d -> bd
 d -> cd
 
 
-s0 -> ab
-s0 -> ac
-s0 -> ad
-s0 -> bc
-s0 -> bd
-s0 -> cd
-
 s0 -> sysbrok
 
 a -> sysbrok
