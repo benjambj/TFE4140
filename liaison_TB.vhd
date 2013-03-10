@@ -119,7 +119,11 @@ begin
 			assert voted_data = '1'report "Should have status one fail" severity failure;
 				
 			assert false report "Case 2 successfull" severity note;
-				
+
+			reset <= '1';
+			wait for clk_period;
+			reset <= '0';	
+			
 		-- Case 3: fist bit differs
 			word := ("01010101", "01010101", "01010101", "11010101"); 
 			di_ready <= '1';
@@ -148,6 +152,10 @@ begin
 			
 			assert false report "Case 3 successfull" severity note;
 				
+			reset <= '1';
+			wait for clk_period;
+			reset <= '0';	
+			
 		--  Case 4: voter must not be destroyed while no real data is ready
 			di_ready <= '0';
 			word := ("00010101", "01011101", "01010111", "01010000"); 
