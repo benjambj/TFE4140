@@ -30,11 +30,11 @@ constant bits_in_status: natural := 3;
 
 constant bits_in_packet_out: natural := bits_in_word + bits_in_status; -- Need to add M when ECC implemented?
 
-signal bit_send_stage: natural range 0 to (bits_in_packet_out); -- Need to add M when the error correction is used.
-signal di_internal: std_logic;
-signal a,b,c,d: std_logic;
+--signal bit_send_stage: natural range 0 to (bits_in_packet_out); -- Need to add M when the error correction is used.
+signal input_active: std_logic;
+--signal a,b,c,d: std_logic;
 
-constant final_data_send_stage : natural := bits_in_word;
+constant final_data_send_stage : natural := bits_in_word - 1;
 
 --Or could we store the data in a register, and somehow use less state calculation?
 -- Do we have to store the data in a register?
@@ -42,26 +42,46 @@ constant final_data_send_stage : natural := bits_in_word;
 -- Error correction signal - not used yet
 --signal ecc: std_logic_vector (M-1 downto 0);
 
+-- Keeps track of which state is active
+signal state_active: std_logic_vector(bits_in_packet_out - 1 downto 0);
+
+--signal data_stage: std_logic;
+
+signal status_bit: std_logic;
+
 begin			 			  
 	
-di_internal <= '1' when di_ready = '1' or (bit_send_stage > 0 and bit_send_stage < 8)
-else '0';
+--input_active <= '1' when di_ready = '1' or (bit_send_stage > 0 and bit_send_stage < 8)
+--else '0';
 
-a <= mp_data(0) when di_internal = '1' else '0';
-b <= mp_data(1) when di_internal = '1' else '0';
-c <= mp_data(2) when di_internal = '1' else '0';
-d <= mp_data(3) when di_internal = '1' else '0';
+--input_active <= '1' when di_ready = '1' else
+--					 '0' when state_active(final_data_send_stage + 1) = '1'
+--					 else unaffected;
+
+--a <= mp_data(0) when di_internal = '1' else '0';
+--b <= mp_data(1) when di_internal = '1' else '0';
+--c <= mp_data(2) when di_internal = '1' else '0';
+--d <= mp_data(3) when di_internal = '1' else '0';
 	
 voter : entity work.oving3(oving3) port map (
-		a => a, b => b, c => c, d => d,
+		a => mp_data(0), b => mp_data(1), c => mp_data(2), d => mp_data(3), active => input_active,
 		clk => clk, rst => reset, y => y_t, status => status_t);
 		
-with bit_send_stage select 
-	voted_data_t <= y_t when 0 to final_data_send_stage,
-					status_t(2) when final_data_send_stage + 1,
-					status_t(1) when final_data_send_stage + 2,
-					status_t(0) when final_data_send_stage + 3;
-				
+--with bit_send_stage select 
+--	voted_data_t <= y_t when 0 to final_data_send_stage,
+--					status_t(2) when final_data_send_stage + 1,
+--					status_t(1) when final_data_send_stage + 2,
+--					status_t(0) when final_data_send_stage + 3;
+			
+status_bit <= status_t(1) when state_active(final_data_send_stage + 2) = '1' else
+				  status_t(0) when state_active(final_data_send_stage + 3) = '1' else
+				 '0';
+			
+-- If status_t(2) = '1', then the other status bits are also 1
+-- or-ing is therefore safe
+voted_data_t <= y_t when input_active = '1' else
+					 status_bit or status_t(2);
+
 do_ready_t <= di_ready;	   
 
 -- Just route it directly?
@@ -77,16 +97,30 @@ begin
 	if clk'event and clk = '1' then
 		if reset = '1' then -- or is this handled by 1-bit voters?
 			do_ready <= '0';  
-			bit_send_stage <= 0;
+--			bit_send_stage <= 0;
+			state_active <= (others => '0');
+			input_active <= '0';
 		else
 			do_ready <= do_ready_t;
-			if di_ready='1' then
-				bit_send_stage <= 1;
-			elsif bit_send_stage = (bits_in_packet_out) then
-				bit_send_stage <= 0;
-			elsif bit_send_stage /= 0 then
-				bit_send_stage <= bit_send_stage + 1;
-			end if;				
+			state_active(0) <= di_ready;
+			for i in 1 to bits_in_packet_out - 1 loop
+				state_active(i) <= state_active(i-1);
+			end loop;
+						
+			if di_ready = '1' then
+				input_active <= '1';
+			elsif state_active(final_data_send_stage) = '1' then
+				input_active <= '0';
+			end if;
+			
+--			do_ready <= do_ready_t;
+--			if di_ready='1' then
+--				bit_send_stage <= 1;
+--			elsif bit_send_stage = (bits_in_packet_out) then
+--				bit_send_stage <= 0;
+--			elsif bit_send_stage /= 0 then
+--				bit_send_stage <= bit_send_stage + 1;
+--			end if;				
 		end if;
 	end if;
 end process;

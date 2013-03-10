@@ -27,6 +27,7 @@ entity oving3 is
 		 b : in STD_LOGIC;
 		 c : in STD_LOGIC;
 		 d : in STD_LOGIC;
+		 active: in STD_LOGIC;
 		 clk : in STD_LOGIC;
 		 rst : in STD_LOGIC;
 		 y : out STD_LOGIC;
@@ -68,7 +69,7 @@ sel : component selector
 	port map (mcu(0) => a, mcu(1) => b, mcu(2) => c, mcu(3) => d, active => working, y => y_t);
 
 			 
-t_working <= working or (((d xor y_t)) & ((c xor y_t)) & ((b xor y_t)) & ((a xor y_t)));
+t_working <= working or ((active and (d xor y_t)) & (active and (c xor y_t)) & (active and (b xor y_t)) & (active and (a xor y_t)));
 
 --with t_working select				
 --status_t(0) <= '0' when "0000" | "1100" | "1010" | "0110" | "1001" | "0101" | "0011",
