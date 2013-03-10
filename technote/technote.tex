@@ -114,31 +114,64 @@ than the 1 LUT required for our current solution.
 \section{Task 3}
 \label{sec:task3}
 
-We have decided to solve this by performing the voting on the fly. We
-use an integer state variable to keep track of which bit emission
-stage we are in, where the value 0 represents ``not sending data'' and
-a value i > 0 represents ``sending data bit i''. The input signals
-from the microcontrollers are propagated into our one bit voter
-implementation, which yields a status and vote result output. While in
-state 0, we do not set do\_ready, and just emits whatever is
-calculated from the voter. When in this stage we cannot assume that
-the data from the microcontrollers should be consistent, so the input
-to the voter is set to 0 when we are not getting data from the
-microcontroller so that no discrepancies are recorded
-unnecessarily. When we observe that di\_ready goes high, we set
-do\_ready the same cycle and increment the sending state to 1. When
-di\_ready goes high, the input to the voter is set to be the
-microcontroller signals. Thus, the desired output bit is ready when
-the clock transition occurs, so the output of the voter can just be
-propagated through as the output of the liaison. When we reach bit
-send stage 8, we set the inputs to the voting unit to 0 as the input
-from the microcontrollers must be disregarded half a cycle later. When
-we reach bit stage 9, we start sending the three status bits one cycle
-at a time. When we are about to reach bit stage 12, we have sent all
-of data, and if there is no new data from the microcontrollers (as
-indicated by di\_ready) we return to the initial bit sending
-state. The error tags are maintained, however, as these are separate
-memory elements.
+When solving the extended task of voting 8-bit words from the
+microprocessors, it is natural to use the one bit voter from task 2 as
+a component. It is paramount, however, that the voter is enabled while
+the microprocessors are not sending valid data (as indicated by the
+di\_ready signal), as this would potentially cause the one bit voter
+to enter the broken state even though it has not been receiving valid
+input. To remedy this without changing the component, one could make
+sure that the input to the one bit voter was equal when valid data was
+not received. This would, however, require four LUTs, one for each
+input bit. By instead passing a data enabled signal into the one bit
+voter, one can alter the one bit voter to better utilise internal
+elements, and by doing this we were able to perform the enabilng of
+the one bit voter without using any more LUTs than before. A
+disadvantage of this method is that the one bit voter no longer would
+be as general purpose, and require a redundant extra line constantly
+set to 1 to use it as stand alone a one bit voter.
+
+Another crossroad of implementation is how one represents the voting
+stage, i.e. how the eight bit voter remembers which bit it is to send
+on the output. One way to represent this state is by using a VHDL
+integer, which counts the bit number you are currently sending. This
+is a solution which is easy to understand, since numbering the bits to
+send is natural when sending several bits sequentially. However, the
+approach requires LUTs for decoding the binary number, as there is no
+direct mapping between a single bit of the state (which would be a
+four bit number when sending eleven bits) and which bit you are going
+to send. A different way to represent the state would be with one
+register for each bit to send, saying whether you are sending this bit
+or not. The logic for selecting the output value is reduced, since the
+calculations are a lot simpler. The number of registers required is
+increased, however, since $n$ bits of output requires $n$ registers
+instead of $\lceil log_2(n) \rceil$ registers.
+
+In our solution, we have decided both to alter the one bit voter and
+represent the bit send stage with one register per bit to send. This
+is done in order to minimize the number of LUTs used in our design. 
+
+We have also decided to solve this by performing the voting on the
+fly. The input signals from the microcontrollers are propagated into
+our one bit voter implementation, which yields a status and vote
+result output. While in state 0, we do not set do\_ready, and just
+emits whatever is calculated from the voter. When in this stage we
+cannot assume that the data from the microcontrollers should be
+consistent, so we set the enable signal of the voter to 0. When we
+observe that di\_ready goes high, we set do\_ready the same cycle and
+enable the first sending state bit. When di\_ready goes high, the
+input to the voter is set to be the microcontroller signals. Thus, the
+desired output bit is ready when the clock transition occurs, so the
+output of the voter can just be propagated through as the output of
+the liaison. When we reach bit send stage 8, we set the inputs to the
+voting unit to 0 as the input from the microcontrollers must be
+disregarded half a cycle later. When we reach bit stage 9, we start
+sending the three status bits one cycle at a time. When we are about
+to reach bit stage 12, we have sent all of data, and if there is no
+new data from the microcontrollers (as indicated by di\_ready) we
+return to the initial bit sending state. The error tags are
+maintained, however, as these are separate memory elements stored in
+the one bit voter.
 
 An alternative might be to store the calculated data in a register, to
 be sent later. This might yield more relaxed timing constraints, which
