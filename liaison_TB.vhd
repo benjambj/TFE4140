@@ -58,6 +58,12 @@ begin
 	type word_t is array(0 to 3) of std_logic_vector(7 downto 0);
 	variable word: word_t;
 	variable cur_bit: integer := 7;
+	
+	type cons_data_t is array(0 to 4) of std_logic_vector(18 downto 0);
+	--This contains two test words per uc, data to send while voter is in status emit phase,
+	--and the di_ready pulse signal on index 4.
+	variable consecutive_data: cons_data_t;
+	
 	begin 					
 		-- First, reset the circuit
 		reset <= '1';
@@ -275,7 +281,107 @@ begin
 			assert voted_data = '0' report "Should not have status one fail" severity failure;
 			
 			assert false report "Case 4 successfull" severity note;
+			
+			--Case 5: Voter must handle new di_ready pulse exactly 11 cycles apart
+			 --Test strategy: First send last bit differs, and then send first bit differs. 
+			 --Make sure to send data "continuously"
+			 --Check that all the output is correct
+			 
+			 -- About this test data: 
+			 -- The first word has a bit error for uc 4 in the last bit of the first word,
+			 -- and a bit error in uc 2 in the first bit of the final word. This should 
+			 -- result in two ucs failing by the end of the test. uc 0 always has correct
+			 -- data, so we can assert that this is what is output. The bits to send after
+			 -- the first word are designed to make all three ucs inconsistent, but as these
+			 -- bits should be disregarded we should not get a status change. The final vector
+			 -- in the array is the di_ready pulse, which should come exactly 11 cycles apart.
+			 -- With the design where we are one cycle past, this should result internally in 
+			 -- state(0) and state(11) being active at the same time, which hopefully is no problem.
+			 consecutive_data := (	"01010101" & "011" & "01010101", 
+											"01010101" & "101" & "11010101",
+											"01010101" & "110" & "01010101", 
+											"01010100" & "111" & "11010101",
+											"10000000" & "000" & "10000000"); -- last row is di_ready pulse
+			cur_bit := 18;
+			di_ready <= consecutive_data(4)(cur_bit);
+			for j in 0 to 3 loop
+				mp_data(j) <= consecutive_data(j)(cur_bit);
+			end loop;
+			
+			wait for clk_period;
+			cur_bit := cur_bit - 1;
+			
+			--Wait for do_ready pulse
+			while do_ready /= '1' loop
+				if cur_bit >= 0 then
+					di_ready <= consecutive_data(4)(cur_bit);
+					for j in 0 to 3 loop
+						mp_data(j) <= consecutive_data(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
+				wait for clk_period;	 
+			end loop;
+			
+			assert voted_data = consecutive_data(0)(7) report "Erroneous vote" severity failure;
+			
+			for i in 6 downto 0 loop
+				if cur_bit >= 0 then
+					di_ready <= consecutive_data(4)(cur_bit);
+					for j in 0 to 3 loop
+						mp_data(j) <= consecutive_data(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;				
+				wait for clk_period; 
+				assert voted_data = consecutive_data(0)(i) report "Erroneous vote" severity failure;
+			end loop;
+			
+			-- Allow status to be sent
+			if cur_bit >= 0 then
+				di_ready <= consecutive_data(4)(cur_bit);
+				for j in 0 to 3 loop
+					mp_data(j) <= consecutive_data(j)(cur_bit);
+				end loop;
+				cur_bit := cur_bit - 1;
+			end if;
+
+			wait for clk_period; 
+
+			assert voted_data = '0' report "Should not have status all fail" severity failure;
+			if cur_bit >= 0 then
+				di_ready <= consecutive_data(4)(cur_bit);
+				for j in 0 to 3 loop
+					mp_data(j) <= consecutive_data(j)(cur_bit);
+				end loop;
+				cur_bit := cur_bit - 1;
+			end if;
+
+			wait for clk_period; 
+
+			assert voted_data = '0' report "Should not have status two fail" severity failure;
+			if cur_bit >= 0 then
+				di_ready <= consecutive_data(4)(cur_bit);
+				for j in 0 to 3 loop
+					mp_data(j) <= consecutive_data(j)(cur_bit);
+				end loop;
+				cur_bit := cur_bit - 1;
+			end if;
+			
+			wait for clk_period; 
+	
+			assert voted_data = '1' report "Should have status one fail" severity failure;
+			if cur_bit >= 0 then
+				di_ready <= consecutive_data(4)(cur_bit);
+				for j in 0 to 3 loop
+					mp_data(j) <= consecutive_data(j)(cur_bit);
+				end loop;
+				cur_bit := cur_bit - 1;
+			end if;
+			
+			
 			wait;
+			
 	end process;													 
 		
 	

@@ -36,6 +36,8 @@ signal input_active: std_logic;
 
 constant final_data_send_stage : natural := bits_in_word;
 
+constant cycle_delay : integer := 1;
+
 --Or could we store the data in a register, and somehow use less state calculation?
 -- Do we have to store the data in a register?
 
@@ -116,7 +118,7 @@ begin
 			
 			if di_ready = '1' then
 				input_active <= '1';
-			elsif state_active(final_data_send_stage) = '1' then
+			elsif state_active(final_data_send_stage - cycle_delay) = '1' then
 				input_active <= '0';
 			end if;
 			
