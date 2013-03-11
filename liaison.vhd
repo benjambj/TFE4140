@@ -53,6 +53,8 @@ signal status_bit: std_logic;
 
 signal mp_data_reg: std_logic_vector(3 downto 0);
 
+signal input_active_reg: std_logic;
+
 begin			 			  
 	
 --input_active <= '1' when di_ready = '1' or (bit_send_stage > 0 and bit_send_stage < 8)
@@ -84,7 +86,7 @@ status_bit <= status_t(1) when state_active(final_data_send_stage + 2) = '1' els
 			
 -- If status_t(2) = '1', then the other status bits are also 1
 -- or-ing is therefore safe
-voted_data_t <= y_t when input_active = '1' else
+voted_data_t <= y_t when input_active_reg = '1' else
 					 status_bit or status_t(2);
 
 --do_ready_t <= di_ready;	   
@@ -105,10 +107,12 @@ begin
 --			bit_send_stage <= 0;
 			state_active <= (others => '0');
 			input_active <= '0';
+			input_active_reg <= '0';
 			mp_data_reg <= (others => '0');
 		else
 			mp_data_reg <= mp_data;
 			
+			input_active_reg <= input_active;
 			state_active(0) <= di_ready;
 			for i in 1 to bits_in_packet_out loop
 				state_active(i) <= state_active(i-1);
