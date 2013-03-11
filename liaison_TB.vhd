@@ -323,9 +323,9 @@ begin
 				wait for clk_period;	 
 			end loop;
 			
-			assert voted_data = consecutive_data(0)(7) report "Erroneous vote" severity failure;
+			assert voted_data = consecutive_data(0)(18) report "Erroneous vote" severity failure;
 			
-			for i in 6 downto 0 loop
+			for i in 17 downto 11 loop
 				if cur_bit >= 0 then
 					di_ready <= consecutive_data(4)(cur_bit);
 					for j in 0 to 3 loop
@@ -335,6 +335,7 @@ begin
 				end if;				
 				wait for clk_period; 
 				assert voted_data = consecutive_data(0)(i) report "Erroneous vote" severity failure;
+				assert do_ready = '0' report "Should not signal data out ready before finished with first word" severity failure;
 			end loop;
 			
 			-- Allow status to be sent
@@ -349,6 +350,8 @@ begin
 			wait for clk_period; 
 
 			assert voted_data = '0' report "Should not have status all fail" severity failure;
+			assert do_ready = '0' report "Should not signal data out ready before finished with first word" severity failure;
+			
 			if cur_bit >= 0 then
 				di_ready <= consecutive_data(4)(cur_bit);
 				for j in 0 to 3 loop
@@ -360,6 +363,8 @@ begin
 			wait for clk_period; 
 
 			assert voted_data = '0' report "Should not have status two fail" severity failure;
+			assert do_ready = '0' report "Should not signal data out ready before finished with first word" severity failure;
+			
 			if cur_bit >= 0 then
 				di_ready <= consecutive_data(4)(cur_bit);
 				for j in 0 to 3 loop
@@ -371,15 +376,43 @@ begin
 			wait for clk_period; 
 	
 			assert voted_data = '1' report "Should have status one fail" severity failure;
-			if cur_bit >= 0 then
-				di_ready <= consecutive_data(4)(cur_bit);
-				for j in 0 to 3 loop
-					mp_data(j) <= consecutive_data(j)(cur_bit);
-				end loop;
-				cur_bit := cur_bit - 1;
-			end if;
+			assert do_ready = '0' report "Should not signal data out ready before finished with first word" severity failure;
 			
+--			if cur_bit >= 0 then
+--				di_ready <= consecutive_data(4)(cur_bit);
+--				for j in 0 to 3 loop
+--					mp_data(j) <= consecutive_data(j)(cur_bit);
+--				end loop;
+--				cur_bit := cur_bit - 1;
+--			end if;
+--			
+			while do_ready /= '1' loop
+				if cur_bit >= 0 then
+					di_ready <= consecutive_data(4)(cur_bit);
+					for j in 0 to 3 loop
+						mp_data(j) <= consecutive_data(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
+				wait for clk_period;	 
+			end loop;
 			
+			assert voted_data = consecutive_data(0)(7) report "Erroneous vote" severity failure;
+			
+			for i in 6 downto 0 loop
+				if cur_bit >= 0 then
+					di_ready <= consecutive_data(4)(cur_bit);
+					for j in 0 to 3 loop
+						mp_data(j) <= consecutive_data(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;				
+				wait for clk_period; 
+				assert voted_data = consecutive_data(0)(i) report "Erroneous vote" severity failure;
+				assert do_ready = '0' report "Should not signal data out ready before finished with first word" severity failure;
+			end loop;
+			
+			assert false report "Case 5 successful" severity note;
 			wait;
 			
 	end process;													 
