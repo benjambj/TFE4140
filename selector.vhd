@@ -64,7 +64,8 @@ use_ab <= not (active(1) or active(0) or (mcu(1) xor mcu(0)));
 
 cd <= mcu(3) and mcu(2) when active(3) = '0' and active(2) = '0' else
       mcu(3) when active(3) = '0' else
-		'0';
+		mcu(2);
+--		'0'; Cannot assume 0?
 
 y <= mcu(0) when use_ab = '1' else
 	  cd;

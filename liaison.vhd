@@ -19,7 +19,7 @@ architecture liaison of liaison is
 signal y_t: std_logic;
 signal status_t: std_logic_vector(2 downto 0);
 
-signal do_ready_t: std_logic;
+--signal do_ready_t: std_logic;
 signal voted_data_t: std_logic;
 
 -- Possible solution with state to keep track of what to send
@@ -34,7 +34,9 @@ constant bits_in_packet_out: natural := bits_in_word + bits_in_status; -- Need t
 signal input_active: std_logic;
 --signal a,b,c,d: std_logic;
 
-constant final_data_send_stage : natural := bits_in_word - 1;
+constant final_data_send_stage : natural := bits_in_word;
+
+constant cycle_delay : integer := 1;
 
 --Or could we store the data in a register, and somehow use less state calculation?
 -- Do we have to store the data in a register?
@@ -43,19 +45,24 @@ constant final_data_send_stage : natural := bits_in_word - 1;
 --signal ecc: std_logic_vector (M-1 downto 0);
 
 -- Keeps track of which state is active
-signal state_active: std_logic_vector(bits_in_packet_out - 1 downto 0);
+signal state_active: std_logic_vector(bits_in_packet_out downto 0);
 
 --signal data_stage: std_logic;
 
 signal status_bit: std_logic;
+
+signal mp_data_reg: std_logic_vector(3 downto 0);
+
+signal input_active_reg: std_logic;
 
 begin			 			  
 	
 --input_active <= '1' when di_ready = '1' or (bit_send_stage > 0 and bit_send_stage < 8)
 --else '0';
 
+--latch
 --input_active <= '1' when di_ready = '1' else
---					 '0' when state_active(final_data_send_stage + 1) = '1'
+--					 '0' when state_active(final_data_send_stage) = '1';
 --					 else unaffected;
 
 --a <= mp_data(0) when di_internal = '1' else '0';
@@ -64,7 +71,7 @@ begin
 --d <= mp_data(3) when di_internal = '1' else '0';
 	
 voter : entity work.oving3(oving3) port map (
-		a => mp_data(0), b => mp_data(1), c => mp_data(2), d => mp_data(3), active => input_active,
+		a => mp_data_reg(0), b => mp_data_reg(1), c => mp_data_reg(2), d => mp_data_reg(3), active => input_active,
 		clk => clk, rst => reset, y => y_t, status => status_t);
 		
 --with bit_send_stage select 
@@ -79,10 +86,10 @@ status_bit <= status_t(1) when state_active(final_data_send_stage + 2) = '1' els
 			
 -- If status_t(2) = '1', then the other status bits are also 1
 -- or-ing is therefore safe
-voted_data_t <= y_t when input_active = '1' else
+voted_data_t <= y_t when input_active_reg = '1' else
 					 status_bit or status_t(2);
 
-do_ready_t <= di_ready;	   
+--do_ready_t <= di_ready;	   
 
 -- Just route it directly?
 voted_data <= voted_data_t;
@@ -100,16 +107,22 @@ begin
 --			bit_send_stage <= 0;
 			state_active <= (others => '0');
 			input_active <= '0';
+			input_active_reg <= '0';
+			mp_data_reg <= (others => '0');
 		else
-			do_ready <= do_ready_t;
+			mp_data_reg <= mp_data;
+			
+			input_active_reg <= input_active;
 			state_active(0) <= di_ready;
-			for i in 1 to bits_in_packet_out - 1 loop
+			for i in 1 to bits_in_packet_out loop
 				state_active(i) <= state_active(i-1);
 			end loop;
-						
+			
+			do_ready <= state_active(0);
+			
 			if di_ready = '1' then
 				input_active <= '1';
-			elsif state_active(final_data_send_stage) = '1' then
+			elsif state_active(final_data_send_stage - cycle_delay) = '1' then
 				input_active <= '0';
 			end if;
 			
