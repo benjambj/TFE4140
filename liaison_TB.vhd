@@ -57,6 +57,7 @@ begin
 	stim: process is
 	type word_t is array(0 to 3) of std_logic_vector(7 downto 0);
 	variable word: word_t;
+	variable cur_bit: integer := 7;
 	begin 					
 		-- First, reset the circuit
 		reset <= '1';
@@ -67,15 +68,31 @@ begin
 			word := ("01010101", "01010101", "01010101", "01010101"); 
 			di_ready <= '1';
 			for j in 0 to 3 loop
-				mp_data(j) <= word(j)(7);
+				mp_data(j) <= word(j)(cur_bit);
 			end loop;
-			wait for clk_period;	 
-			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			cur_bit := cur_bit - 1;
+			wait for clk_period;
 			di_ready <= '0';
+			--Wait for do_ready pulse
+			while do_ready /= '1' loop
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
+				wait for clk_period;
+			end loop;
+			
+			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			
 			for i in 6 downto 0 loop
-				for j in 0 to 3 loop
-					mp_data(j) <= word(j)(i);
-				end loop;
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
 				wait for clk_period;
 				assert voted_data = word(0)(i) report "Erroneous vote" severity failure;
 			end loop;
@@ -94,17 +111,35 @@ begin
 			
 		-- Case 2: one byte differs in final bit
 			word := ("01010101", "01010101", "01010101", "01010100"); 
+			cur_bit := 7;
 			di_ready <= '1';
 			for j in 0 to 3 loop
-				mp_data(j) <= word(j)(7);
+				mp_data(j) <= word(j)(cur_bit);
 			end loop;
-			wait for clk_period; 
-			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			
+			wait for clk_period;
+			cur_bit := cur_bit - 1;
 			di_ready <= '0';
+			--Wait for do_ready pulse
+			while do_ready /= '1' loop
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
+				wait for clk_period;	 
+			end loop;
+			
+			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			
 			for i in 6 downto 0 loop
-				for j in 0 to 3 loop
-					mp_data(j) <= word(j)(i);
-				end loop;
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;				
 				wait for clk_period; 
 				assert voted_data = word(0)(i) report "Erroneous vote" severity failure;
 			end loop;
@@ -126,17 +161,35 @@ begin
 			
 		-- Case 3: fist bit differs
 			word := ("01010101", "01010101", "01010101", "11010101"); 
+			cur_bit := 7;
 			di_ready <= '1';
 			for j in 0 to 3 loop
-				mp_data(j) <= word(j)(7);
+				mp_data(j) <= word(j)(cur_bit);
 			end loop;
-			wait for clk_period; 
-			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			
+			wait for clk_period;
+			cur_bit := cur_bit - 1;
 			di_ready <= '0';
+			--Wait for do_ready pulse
+			while do_ready /= '1' loop
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
+				wait for clk_period;	 
+			end loop;
+			
+			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			
 			for i in 6 downto 0 loop
-				for j in 0 to 3 loop
-					mp_data(j) <= word(j)(i);
-				end loop;
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
 				wait for clk_period; 
 				assert voted_data = word(0)(i) report "Erroneous vote" severity failure;
 			end loop;
@@ -166,27 +219,49 @@ begin
 			for j in 0 to 3 loop
 				mp_data(j) <= word(j)(7);
 			end loop;
-			wait for clk_period;	 
+			wait for clk_period;
+			
+			assert do_ready = '0' report "Should not signal data out ready without data in ready" severity failure;
+			
 			for i in 6 downto 0 loop
 				for j in 0 to 3 loop
 					mp_data(j) <= word(j)(i);
 				end loop;
 				wait for clk_period;
+				assert do_ready = '0' report "Should not signal data out ready without data in ready" severity failure;
 			end loop;
 		
 		-- Repeat case 1: all bytes are the same.
 			word := ("01010101", "01010101", "01010101", "01010101"); 
+			cur_bit := 7;
 			di_ready <= '1';
 			for j in 0 to 3 loop
-				mp_data(j) <= word(j)(7);
+				mp_data(j) <= word(j)(cur_bit);
 			end loop;
-			wait for clk_period;	 
-			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			
+			wait for clk_period;
+			cur_bit := cur_bit - 1;
 			di_ready <= '0';
+			--Wait for do_ready pulse
+			while do_ready /= '1' loop
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
+				wait for clk_period;	 
+			end loop;
+			
+			assert voted_data = word(0)(7) report "Erroneous vote" severity failure;
+			
 			for i in 6 downto 0 loop
-				for j in 0 to 3 loop
-					mp_data(j) <= word(j)(i);
-				end loop;
+				if cur_bit >= 0 then
+					for j in 0 to 3 loop
+						mp_data(j) <= word(j)(cur_bit);
+					end loop;
+					cur_bit := cur_bit - 1;
+				end if;
 				wait for clk_period;
 				assert voted_data = word(0)(i) report "Erroneous vote" severity failure;
 			end loop;
@@ -198,11 +273,9 @@ begin
 			assert voted_data = '0' report "Should not have status two fail" severity failure;
 			wait for clk_period; 
 			assert voted_data = '0' report "Should not have status one fail" severity failure;
-					assert voted_data = '0' report "Should not have status one fail" severity failure;
 			
 			assert false report "Case 4 successfull" severity note;
-
-		wait;
+			wait;
 	end process;													 
 		
 	
