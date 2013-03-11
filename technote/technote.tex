@@ -74,7 +74,7 @@ doubling the cases of the different select statements.
 
 The third implementation used a clever algorithm for performing the
 voting, based on summing the number of valid signals with each value
-and checking which value was highest, (\ie sum(validOnes) >
+and checking which value was highest, (\ie sum(validOnes) \textgreater
 sum(validZeroes)). It also used summations over the number of working
 signals (\ie our state) to calculate the status output signal. This
 design gave us 19 LUTs and a clock frequency of 300 MHz, and was as
@@ -85,7 +85,7 @@ to the addition circuitry being more complex as well as also requiring
 three LUTs for converting the sum into each of the status bits. When
 we combined these two designs (\ie using the sum algorithm for voting
 and the plain LUT approach for calculating the status and new internal
-state), we ended up with 14 LUTs and a clock frequency of 320 MHz. 
+state), we ended up with 14 LUTs and a clock frequency of 320 MHz.
 
 The final implementation took the approach of coding the desired LUTs
 of the voter explicitly, taking advantage of structures intrinsic to
@@ -128,7 +128,7 @@ voter, one can alter the one bit voter to better utilise internal
 elements, and by doing this we were able to perform the enabilng of
 the one bit voter without using any more LUTs than before. A
 disadvantage of this method is that the one bit voter no longer would
-be as general purpose, and require a redundant extra line constantly
+be as generic as before, and require a redundant extra line constantly
 set to 1 to use it as stand alone a one bit voter.
 
 Another crossroad of implementation is how one represents the voting
@@ -151,33 +151,38 @@ In our solution, we have decided both to alter the one bit voter and
 represent the bit send stage with one register per bit to send. This
 is done in order to minimize the number of LUTs used in our design. 
 
-We have also decided to solve this by performing the voting on the
-fly. The input signals from the microcontrollers are propagated into
-our one bit voter implementation, which yields a status and vote
-result output. While in state 0, we do not set do\_ready, and just
-emits whatever is calculated from the voter. When in this stage we
-cannot assume that the data from the microcontrollers should be
-consistent, so we set the enable signal of the voter to 0. When we
-observe that di\_ready goes high, we set do\_ready the same cycle and
-enable the first sending state bit. When di\_ready goes high, the
-input to the voter is set to be the microcontroller signals. Thus, the
-desired output bit is ready when the clock transition occurs, so the
-output of the voter can just be propagated through as the output of
-the liaison. When we reach bit send stage 8, we set the inputs to the
-voting unit to 0 as the input from the microcontrollers must be
-disregarded half a cycle later. When we reach bit stage 9, we start
-sending the three status bits one cycle at a time. When we are about
-to reach bit stage 12, we have sent all of data, and if there is no
-new data from the microcontrollers (as indicated by di\_ready) we
-return to the initial bit sending state. The error tags are
-maintained, however, as these are separate memory elements stored in
-the one bit voter.
+It is necessary to make the enable signal of the one bit voter high at
+the exact moments in time when the data from the microcontrollers is
+guaranteed to be valid. As the data from the microcontrollers arrive
+at the falling edge of the clock, we introduced extra registers for
+holding the microcontroller input and a set/clear register for the
+enable signal. As the voter itself was to have clocked output, we
+therefore had to delay enabling do\_ready with one cycle after
+di\_ready was set. Apart from this delay, the data is sent
+continuously from the voter without the need for more storage. When
+eight cycles have passed, as indicated by the register for send stage
+eight being set, we clear the enable register. The value of the enable
+register can as such also be used to select from the voted data output
+or the status.
 
-An alternative might be to store the calculated data in a register, to
-be sent later. This might yield more relaxed timing constraints, which
-in turn should give a circuit able to operate at higher clock
-frequencies. In turn, it is likely to be a bit bigger, as the register
-write-enable logic has to be written in addition to the
-output-selection logic.
+An alternative to sending the data out almost directly might be to
+store the calculated data in registers, to be sent later. This might
+yield more relaxed timing constraints since the work is split between
+input processing and output selection, which in turn should give a
+circuit able to operate at higher clock frequencies. In turn, it is
+likely to be a bit bigger, as the register write-enable logic has to
+be written in addition to the output-selection logic.
+
+There might be alternatives to introducing registers and extra delay
+for controlling the enable signal. One might be to use an SR-latch
+instead of a flip flop, which might enable us to activate error
+tagging in the one bit voter in the middle of a cycle. Another
+approach might be to remove the explicit register for clocking the
+output of the voter. Instead, we might get by with the one bit voter
+input registers and the enable register, and make the one bit voting
+combinatorial in output production. This would introduce extra delay
+from the rising edge of the clock until the voted data would be ready,
+but would reduce the complexity introduced with delaying the output by
+one cycle as well as require fewer registers in total.
 
 \end{document}
