@@ -1,23 +1,3 @@
--------------------------------------------------------------------------------
---
--- Title       : oving3
--- Design      : oving4
--- Author      : Ole Brumm
--- Company     : Hundremeterskogen Dataservice
---
--------------------------------------------------------------------------------
---
--- File        : oving3.vhd
--- Generated   : Fri Feb 15 09:08:16 2013
--- From        : interface description file
--- By          : Itf2Vhdl ver. 1.20
---
--------------------------------------------------------------------------------
---
--- Description : 
---
--------------------------------------------------------------------------------
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
@@ -41,7 +21,7 @@ end oving3;
 
 architecture oving3 of oving3 is  
 
--- fails(3) == d_failed, fails(2) == c_failed, fails(1) == b_failed, fails(0) == a_failed
+-- error_tags(3) == d failed, error_tags(2) == c failed, error_tags(1) == b failed, error_tags(0) == a failed
 signal error_tags: std_logic_vector(3 downto 0);
 signal t_error_tags : std_logic_vector(3 downto 0);
 signal y_t: std_logic;
