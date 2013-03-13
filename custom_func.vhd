@@ -12,20 +12,20 @@ use IEEE.STD_LOGIC_1164.all;
 
 package custom_func is
 
--- type <new_type> is
---  record
---    <type_name>        : std_logic_vector( 7 downto 0);
---    <type_name>        : std_logic;
--- end record;
---
--- Declare constants
---
--- constant <constant_name>		: time := <time_unit> ns;
--- constant <constant_name>		: integer := <value;
---
--- Declare functions and procedure
---
-function bool_to_stdlogic (x: boolean) return std_logic;
+    -- type <new_type> is
+    --  record
+    --    <type_name>        : std_logic_vector( 7 downto 0);
+    --    <type_name>        : std_logic;
+    -- end record;
+    --
+    -- Declare constants
+    --
+    -- constant <constant_name>		: time := <time_unit> ns;
+    -- constant <constant_name>		: integer := <value;
+    --
+    -- Declare functions and procedure
+    --
+    function bool_to_stdlogic (x: boolean) return std_logic;
 
 -- function <function_name>  (signal <signal_name> : in <type_declaration>) return <type_declaration>;
 -- procedure <procedure_name> (<type_declaration> <constant_name>	: in <type_declaration>);
@@ -36,15 +36,15 @@ end custom_func;
 package body custom_func is
 
 
-function bool_to_stdlogic (x: boolean)
-return std_logic is
-begin
-	if x then
-		return '1';
-	else
-		return '0';
-	end if;
-end function;
+    function bool_to_stdlogic (x: boolean)
+    return std_logic is
+    begin
+        if x then
+            return '1';
+        else
+            return '0';
+        end if;
+    end function;
 
 ---- Example 1
 --  function <function_name>  (signal <signal_name> : in <type_declaration>  ) return <type_declaration> is
@@ -71,5 +71,5 @@ end function;
 --  begin
 --    
 --  end <procedure_name>;
- 
+
 end custom_func;

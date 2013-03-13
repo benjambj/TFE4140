@@ -18,7 +18,8 @@ signal use_ab: std_logic;
 
 begin
 
--- If MCU 0 and 1 is both untagged and they agree on output, we can use MCU 0 as output
+-- If MCU 0 and 1 is both untagged and they agree on output,
+-- we can use MCU 0 as output
 use_ab <= not (tagged(1) or tagged(0) or (mcu(1) xor mcu(0)));
 
 -- else we must choose one of the other signals

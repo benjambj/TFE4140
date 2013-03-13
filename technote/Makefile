@@ -17,7 +17,7 @@ all: ${NAME}.pdf
 clean_all: clean
 	if [ -e '${NAME}.pdf' ]; then rm -f ${NAME}.pdf; fi
 
-${NAME}.pdf: ${FILES}
+${NAME}.pdf: ${FILES} state.pdf
 # ${NAME}.ind bibliography.bbl
 	${TEX} ${NAME}.tex
 	${TEX} ${NAME}.tex # to be shure of toc and links
