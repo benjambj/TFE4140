@@ -49,7 +49,7 @@ signal status_t: std_logic_vector(2 downto 0);
 
 component selector is
 	port ( mcu : in std_logic_vector(3 downto 0);
-			 active : in std_logic_vector(3 downto 0);
+			 tagged : in std_logic_vector(3 downto 0);
 			 y : out std_logic);
 end component;
 
