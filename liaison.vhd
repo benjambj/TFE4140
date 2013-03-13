@@ -34,9 +34,9 @@ constant bits_in_packet_out: natural := bits_in_word + bits_in_status; -- Need t
 signal input_active: std_logic;
 --signal a,b,c,d: std_logic;
 
-constant final_data_send_stage : natural := bits_in_word;
+constant final_data_send_stage : natural := bits_in_word - 1;
 
-constant cycle_delay : integer := 1;
+constant cycle_delay : integer := 0;
 
 --Or could we store the data in a register, and somehow use less state calculation?
 -- Do we have to store the data in a register?
@@ -45,7 +45,7 @@ constant cycle_delay : integer := 1;
 --signal ecc: std_logic_vector (M-1 downto 0);
 
 -- Keeps track of which state is active
-signal state_active: std_logic_vector(bits_in_packet_out downto 0);
+signal state_active: std_logic_vector(bits_in_packet_out - 1 downto 0);
 
 --signal data_stage: std_logic;
 
@@ -94,6 +94,8 @@ voted_data_t <= y_t when input_active_reg = '1' else
 -- Just route it directly?
 voted_data <= voted_data_t;
 
+input_active_reg <= input_active;
+
 -- By making this output clocked, we introduce an extra delay from one-bit voter output...
 -- We need the clock to update the bit-sending state here, but we can just route the voted data 
 -- directly to the output without the clock, right? 
@@ -107,18 +109,19 @@ begin
 --			bit_send_stage <= 0;
 			state_active <= (others => '0');
 			input_active <= '0';
-			input_active_reg <= '0';
+--			input_active_reg <= '0';
 			mp_data_reg <= (others => '0');
 		else
 			mp_data_reg <= mp_data;
 			
-			input_active_reg <= input_active;
+--			input_active_reg <= input_active;
 			state_active(0) <= di_ready;
-			for i in 1 to bits_in_packet_out loop
+			for i in 1 to bits_in_packet_out - 1 loop
 				state_active(i) <= state_active(i-1);
 			end loop;
 			
-			do_ready <= state_active(0);
+			--do_ready <= state_active(0);
+			do_ready <= di_ready;
 			
 			if di_ready = '1' then
 				input_active <= '1';

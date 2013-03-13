@@ -87,16 +87,18 @@ with t_working select
 	    		"010" when "1100" | "1010" | "0110" | "1001" | "0101" | "0011",
 				"111" when others;
 
+y <= y_t;
+
 state_update: process(clk) is
 begin
 	if clk'event and clk = '1' then
 		if rst = '1' then
 			working <= "0000";
-			y <= '0';  
+			--y <= '0';  
 			status <= "000";
 		else
 			working <= t_working;
-			y <= y_t;		   
+			--y <= y_t;		   
 			status <= status_t;
 		end if;	
     end if;
