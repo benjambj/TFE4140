@@ -1,9 +1,10 @@
 \documentclass[11pt]{article}
 
-\usepackage{graphicx,amsmath,amssymb,url,xspace}
+\usepackage{graphicx,amsmath,amssymb,url,xspace,color}
 \usepackage[utf8]{inputenc}
 \usepackage[colorlinks=true]{hyperref}
 \usepackage{parskip}
+\usepackage{listings}
 \newcommand{\eg}{e.g.,\xspace}
 \newcommand{\bigeg}{E.g.,\xspace}
 \newcommand{\etal}{\textit{et~al.\xspace}}
@@ -11,12 +12,57 @@
 \newcommand{\ie}{i.e.,\xspace}
 \newcommand{\bigie}{I.e.,\xspace}
 
+\hypersetup{
+    %bookmarks=true,         % show bookmarks bar?
+    unicode=false,          % non-Latin characters in Acrobats bookmarks
+    pdftoolbar=true,        % show Acrobats toolbar?
+    pdfmenubar=true,        % show Acrobats menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={TFE4140 - Technical note - Group 3},    % title
+    pdfauthor={Stian Hvatum},     % author
+    pdfsubject={TFE4140 Modeling and Analysis of Digital Systems},   % subject of the document
+    pdfcreator={Stian Hvatum},   % creator of the document
+    pdfproducer={Stian Hvatum}, % producer of the document
+    pdfnewwindow=true,      % links in new window
+    colorlinks,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+
+\lstset{
+    keywordstyle=\bfseries\ttfamily\color[rgb]{0,0,1},
+    identifierstyle=\ttfamily,
+    commentstyle=\color[rgb]{0.133,0.545,0.133},
+    stringstyle=\ttfamily\color[rgb]{0.627,0.126,0.941},
+    showstringspaces=false,
+    basicstyle=\tiny,
+    numberstyle=\tiny,
+    framexleftmargin=3pt,
+    numbers=left,
+    stepnumber=1,
+    numbersep=15pt,
+    tabsize=4,
+    breaklines=true,
+    prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+    breakatwhitespace=false,
+    aboveskip={1.5\baselineskip},
+    columns=fixed,
+    upquote=true,
+    extendedchars=true,
+    frame=l,
+    sensitive=true,
+}
+
 \title{Technical Note}
 \author{Stian Hvatum and Benjamin Bjørnseth}
 
 \begin{document}
 \maketitle
-
+\tableofcontents
+\newpage
 \section{Task 1}
 \label{sec:task1}
 We need 12 states to implement the error tagging, since any
@@ -25,6 +71,14 @@ failures indicate a broken system, we can merge the states
 corresponding to these scenarios into one ``System broken'' state,
 which means that we do not need the full 16 states. However, since 3
 bits are not enough to represent 12 states, we need 4 bits anyways.
+
+\begin{figure}
+    \begin{center}
+\includegraphics[width=10cm]{state}
+    \end{center}
+\caption{States}
+\label{fig:states}
+\end{figure}
 
 From the initial state, you can move to the states a, b, c, d and
 System broken, if either microcontroller a, b, c, d fail or two
@@ -54,7 +108,7 @@ following critera:
 In our group, we considered four different implementations. 
 
 The first implementation represented the states discussed in
-\autoref{sec:task1} explicitly with a custom VHDL state type, and had
+\autoref{sec:task1} and shown in \autoref{fig:states} explicitly with a custom VHDL state type, and had
 a case statement over a state variable which implemented the logic of
 each case. This resulted in approximately 300 lines of VHDL code, and
 synthesised into 98 LUTs with a maximum clock frequency of 291.3
@@ -156,14 +210,19 @@ the exact moments in time when the data from the microcontrollers is
 guaranteed to be valid. As the data from the microcontrollers arrive
 at the falling edge of the clock, we introduced extra registers for
 holding the microcontroller input and a set/clear register for the
-enable signal. As the voter itself was to have clocked output, we
-therefore had to delay enabling do\_ready with one cycle after
-di\_ready was set. Apart from this delay, the data is sent
-continuously from the voter without the need for more storage. When
-eight cycles have passed, as indicated by the register for send stage
-eight being set, we clear the enable register. The value of the enable
-register can as such also be used to select from the voted data output
-or the status.
+enable signal.
+
+% The voter is no longer clocked, as the one-bit voter does no longer
+% need to have syncronus reset, and is implicitly reset by the outer
+% system, and only re
+Since the one bit voter originally was clocked due to having syncronus
+reset, we had to delay the signal one cycle through the system. We
+realized that this was no longer needed in the eight-bit system, and
+the data is now sent continuously from the voter. When eight cycles
+have passed, as indicated by the register for current send stage,
+we clear the enable register. The value of the enable register is
+also be used to select from the voted data output or the status when
+sending data.
 
 An alternative to sending the data out almost directly might be to
 store the calculated data in registers, to be sent later. This might
@@ -178,11 +237,26 @@ for controlling the enable signal. One might be to use an SR-latch
 instead of a flip flop, which might enable us to activate error
 tagging in the one bit voter in the middle of a cycle. Another
 approach might be to remove the explicit register for clocking the
-output of the voter. Instead, we might get by with the one bit voter
-input registers and the enable register, and make the one bit voting
-combinatorial in output production. This would introduce extra delay
-from the rising edge of the clock until the voted data would be ready,
-but would reduce the complexity introduced with delaying the output by
-one cycle as well as require fewer registers in total.
+output of the voter.
+
+\appendix{}
+\section{Liaison VHDL-code}
+This is the main component in our delivery.
+\lstinputlisting[language=VHDL]{../liaison.vhd}
+\section{One-bit voter VHDL-code}
+This is a modified version of the code from assignment 3,
+containing a one-bit voter system with internal tagging-system.
+\lstinputlisting[language=VHDL]{../oving3.vhd}
+\section{Selector VHDL-code}
+The selector is an internal component in the one-bit voter. It
+is used to select what is the correct output from the MCUs, given
+the internal state of which one works, and their current input.
+\lstinputlisting[language=VHDL]{../selector.vhd}
+\section{Liaison testbench VHDL-code}
+We tested the provided code using the following testbench.
+The testbench includes quite a few assertions, helping us finding
+bugs without having to gase uppon the simulation diagrams after
+each little code tweak.
+\lstinputlisting[language=VHDL]{../liaison_TB.vhd}
 
 \end{document}

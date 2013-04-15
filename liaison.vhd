@@ -20,12 +20,15 @@ signal y_t: std_logic;
 signal status_t: std_logic_vector(2 downto 0);
 
 
--- We define a lot of constants to help readability and understandability of the rest of the code
+-- We define a lot of constants to help readability and understandability of
+-- the rest of the code
 constant bits_in_word: natural := 8;
 constant bits_in_status: natural := 3;
+
 constant bits_in_data: natural := bits_in_word + bits_in_status;
 
 constant bits_in_packet_out: natural := bits_in_data + M; -- Need to add M when ECC implemented?
+
 constant cycle_delay : integer := 0;
 
 
@@ -47,7 +50,8 @@ signal state_active: std_logic_vector(number_of_states - 1 downto 0);
 -- Temp.signal to hold current status bit, if in appropriate state
 signal status_bit: std_logic;
 
--- Microprocessor data register, in order to keep values stable during the entire clock cycle
+-- Microprocessor data register, in order to keep values stable
+-- during the entire clock cycle
 signal mp_data_reg: std_logic_vector(3 downto 0);
 
 signal par_enable: std_logic_vector(M-2 downto 0);
@@ -61,13 +65,18 @@ signal par_bit: std_logic;
 begin			 			  
 
 voter : entity work.oving3(oving3) port map (
-		a => mp_data_reg(0), b => mp_data_reg(1), c => mp_data_reg(2), d => mp_data_reg(3), active => input_active,
-		clk => clk, rst => reset, y => y_t, status => status_t);
+		a => mp_data_reg(0), b => mp_data_reg(1),
+                c => mp_data_reg(2), d => mp_data_reg(3),
+                active => input_active, clk => clk, rst => reset,
+                y => y_t, status => status_t);
 
--- Temeprary result to calculate current status bit, given we are sending one of the three status bits 
-status_bit <= status_t(1) when state_active(final_data_send_stage + 2) = '1' else
-				  status_t(0) when state_active(final_data_send_stage + 3) = '1' else
-				 '0';
+-- Temeprary result to calculate current status bit,
+-- given we are sending one of the three status bits 
+status_bit <=    status_t(1) when state_active(final_data_send_stage + 2) = '1'
+              else
+		 status_t(0) when state_active(final_data_send_stage + 3) = '1'
+              else
+		 '0';
 			
 -- If status_t(2) = '1', then the other status bits are also 1
 -- or-ing is therefore safe
@@ -114,9 +123,11 @@ begin
 			end loop;
 
                         -- input_active
-			if di_ready = '1' then
+			if di_ready = '1'
+                        then
 				input_active <= '1';
-			elsif state_active(final_data_send_stage - cycle_delay) = '1' then
+			elsif state_active(final_data_send_stage - cycle_delay) = '1'
+                        then
 				input_active <= '0';
 			end if;
 			

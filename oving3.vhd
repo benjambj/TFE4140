@@ -21,7 +21,8 @@ end oving3;
 
 architecture oving3 of oving3 is  
 
--- error_tags(3) == d failed, error_tags(2) == c failed, error_tags(1) == b failed, error_tags(0) == a failed
+-- error_tags(3) == d failed, error_tags(2) == c failed,
+-- error_tags(1) == b failed, error_tags(0) == a failed
 signal error_tags: std_logic_vector(3 downto 0);
 signal t_error_tags : std_logic_vector(3 downto 0);
 signal y_t: std_logic;
@@ -36,11 +37,18 @@ end component;
 begin
 
     sel : component selector
-	port map (mcu(0) => a, mcu(1) => b, mcu(2) => c, mcu(3) => d, tagged => error_tags, y => y_t);
+	port map (mcu(0) => a, mcu(1) => b, mcu(2) => c, mcu(3) => d,
+                  tagged => error_tags, y => y_t);
 
 			 
--- This is where the error tags are calculated by comparing mcu's output against voted output
-t_error_tags <= error_tags or ((active and (d xor y_t)) & (active and (c xor y_t)) & (active and (b xor y_t)) & (active and (a xor y_t)));
+-- This is where the error tags are calculated by comparing
+-- MCU's output against voted output
+t_error_tags <= error_tags or (
+                (active and (d xor y_t)) &
+                (active and (c xor y_t)) &
+                (active and (b xor y_t)) &
+                (active and (a xor y_t))
+            );
 
 -- Set current status based on what mcu's are still error_tags
 with t_error_tags select
