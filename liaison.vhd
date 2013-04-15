@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.all;
 
 entity liaison is	
 	generic (
-	M: integer := 3
+	M: integer := 5
 	);
 	port (
 	clk			: in std_logic;
@@ -23,8 +23,9 @@ signal status_t: std_logic_vector(2 downto 0);
 -- We define a lot of constants to help readability and understandability of the rest of the code
 constant bits_in_word: natural := 8;
 constant bits_in_status: natural := 3;
+constant bits_in_data: natural := bits_in_word + bits_in_status;
 
-constant bits_in_packet_out: natural := bits_in_word + bits_in_status; -- Need to add M when ECC implemented?
+constant bits_in_packet_out: natural := bits_in_data + M; -- Need to add M when ECC implemented?
 constant cycle_delay : integer := 0;
 
 
@@ -49,6 +50,14 @@ signal status_bit: std_logic;
 -- Microprocessor data register, in order to keep values stable during the entire clock cycle
 signal mp_data_reg: std_logic_vector(3 downto 0);
 
+signal par_enable: std_logic_vector(M-2 downto 0);
+signal par: std_logic_vector(M-1 downto 0);
+signal voted_data_t: std_logic;
+signal out_data: std_logic;
+
+signal should_output_parity_bits: std_logic;
+signal par_bit: std_logic;
+
 begin			 			  
 
 voter : entity work.oving3(oving3) port map (
@@ -62,8 +71,24 @@ status_bit <= status_t(1) when state_active(final_data_send_stage + 2) = '1' els
 			
 -- If status_t(2) = '1', then the other status bits are also 1
 -- or-ing is therefore safe
-voted_data <= y_t when input_active = '1' else
+voted_data_t <= y_t when input_active = '1' else
 					 status_bit or status_t(2);
+					
+-- Are we supposed to output par(4) first?
+par_bit <= 	par(0) when state_active(bits_in_data) = '1' else
+				par(1) when state_active(bits_in_data + 1) = '1' else
+				par(2) when state_active(bits_in_data + 2) = '1' else
+				par(3) when state_active(bits_in_data + 3) = '1' else
+				par(4);
+					
+voted_data <= voted_data_t when should_output_parity_bits = '0' else
+				  par_bit;
+out_data <= voted_data_t;
+
+par_enable(0) <= state_active(0) or state_active(1) or state_active(3) or state_active(4) or state_active(6) or state_active(8) or state_active(10);
+par_enable(1) <= state_active(0) or state_active(2) or state_active(3) or state_active(5) or state_active(6) or state_active(9) or state_active(10);
+par_enable(2) <= state_active(2) or state_active(3) or state_active(4) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
+par_enable(3) <= state_active(4) or state_active(5) or state_active(6) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
 
 -- Update registers on rising edge
 process (clk, reset) is
@@ -74,6 +99,8 @@ begin
 			state_active <= (others => '0');
 			input_active <= '0';
 			mp_data_reg <= (others => '0');
+			par <= (others => '0');
+			should_output_parity_bits <= '0';
 		else
                         -- since we transmit data immediatly,
                         -- we have data output ready as soon as
@@ -92,9 +119,22 @@ begin
 			elsif state_active(final_data_send_stage - cycle_delay) = '1' then
 				input_active <= '0';
 			end if;
-
+			
+			for i in 0 to M-2 loop
+				if par_enable(i) = '1' then
+					par(i) <= (par(i) xor voted_data_t) and not di_ready;
+				end if;
+			end loop;
+			par(4) <= (par(4) xor out_data) and not di_ready;
+			
+			if state_active(0) = '1' then
+				should_output_parity_bits <= '0';
+			elsif state_active(bits_in_data) = '1' then
+				should_output_parity_bits <= '1';
+			end if;
+			
 			mp_data_reg <= mp_data;
-                end if;
+      end if;
 	end if;
 end process;
 	
