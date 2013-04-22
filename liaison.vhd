@@ -83,12 +83,12 @@ status_bit <=    status_t(1) when state_active(final_data_send_stage + 2) = '1'
 voted_data_t <= y_t when input_active = '1' else
 					 status_bit or status_t(2);
 					
--- Are we supposed to output par(4) first?
-par_bit <= 	par(0) when state_active(bits_in_data) = '1' else
-				par(1) when state_active(bits_in_data + 1) = '1' else
+-- Are we supposed to output par(4) first? (Yes)
+par_bit <= 	par(4) when state_active(bits_in_data) = '1' else
+				par(3) when state_active(bits_in_data + 1) = '1' else
 				par(2) when state_active(bits_in_data + 2) = '1' else
-				par(3) when state_active(bits_in_data + 3) = '1' else
-				par(4);
+				par(1) when state_active(bits_in_data + 3) = '1' else
+				par(0);
 					
 voted_data <= voted_data_t when should_output_parity_bits = '0' else
 				  par_bit;

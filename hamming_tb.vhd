@@ -27,39 +27,21 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+
  
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
 
-function test_ecc ( v: std_logic_vector(7 downto 0),
-	ecc: std_logic_vector(4 downto 0))
-	begin
-		test_ecc(v,v,v,v,ecc);
-	end function;
- 
-function test_ecc (
-	v0: std_logic_vector(7 downto 0),
-	v1: std_logic_vector(7 downto 0),
-	v2: std_logic_vector(7 downto 0),
-	v3: std_logic_vector(7 downto 0),
-	ecc: std_logic_vector(4 downto 0)
-	)
-    return std_logic is
-    begin
-        if x then
-            return '1';
-        else
-            return '0';
-        end if;
-end function;
- 
 ENTITY hamming_tb IS
 END hamming_tb;
  
 ARCHITECTURE behavior OF hamming_tb IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
+ 
+
+
  
     COMPONENT liaison
     PORT(
@@ -85,7 +67,22 @@ ARCHITECTURE behavior OF hamming_tb IS
 
    -- Clock period definitions
    constant clk_period : time := 10 ns;
+	
+function gen_ecc(d: std_logic_vector(7 downto 0); s: std_logic_vector(2 downto 0))
+		return std_logic_vector is
+		variable ecc : std_logic_vector(4 downto 0);
+	begin
+		ecc(0) := d(0) xor d(1) xor d(3) xor d(4) xor d(6) xor s(0) xor s(2);
+		ecc(1) := d(0) xor d(2) xor d(3) xor d(5) xor d(6) xor s(1) xor s(2);
+		ecc(2) := d(1) xor d(2) xor d(3) xor d(7) xor s(0) xor s(1) xor s(2);
+		ecc(3) := d(4) xor d(5) xor d(6) xor d(7) xor s(0) xor s(1) xor s(2);
+		ecc(4) := d(0) xor d(1) xor d(2) xor d(3) xor d(4) xor d(5) xor d(6) xor d(7)
+							xor s(0) xor s(1) xor s(2)
+							xor ecc(0) xor ecc(1) xor ecc(2) xor ecc(3);
+		return ecc;
+	end function;
  
+	
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
@@ -106,18 +103,89 @@ BEGIN
 		clk <= '1';
 		wait for clk_period/2;
    end process;
- 
 
    -- Stimulus process
    stim_proc: process
+	is
+		variable testnr : integer := 0;
+		procedure test_ecc (
+			d0: std_logic_vector(7 downto 0);
+			d1: std_logic_vector(7 downto 0);
+			d2: std_logic_vector(7 downto 0);
+			d3: std_logic_vector(7 downto 0);
+			voted: std_logic_vector(7 downto 0);
+			status : std_logic_vector(2 downto 0);
+			ecc: std_logic_vector(4 downto 0))
+		is
+			variable j : integer := 7;
+			variable output_pulse : boolean := false;
+		begin
+		assert false report "Test " & integer'image(testnr) & " started!" severity note;
+			di_ready <= '1';
+			
+			-- send data and wait for do_ready
+			for i in 7 downto 0 loop
+				mp_data <= (d0(i), d1(i), d2(i), d3(i));
+				wait for clk_period;
+				if do_ready = '1' or output_pulse then
+					output_pulse := true;
+					di_ready <= '0'; -- only effective first itteration
+					assert voted_data = voted(j) report "Erroneous vote @test " & integer'image(testnr) & " @input-step " & integer'image(i) & " @output-step " & integer'image(j) severity failure;
+					j := j-1;
+				end if;
+			end loop;
+			di_ready <= '0';
+			
+			assert false report "Sendt " & integer'image(7-j) & "data bits before output was ready. j is " & integer'image(j) severity note;
+			
+			-- check rest of voted data
+			if j > -1 then -- '-1' means all data bits has been received
+				for i in j downto 0 loop
+						wait for clk_period;
+						assert voted_data = voted(i) report "Erroneous vote @test " & integer'image(testnr) & " @output-step " & integer'image(i) severity failure;
+				end loop;
+			end if;
+			
+			-- check status
+			for i in 2 downto 0 loop
+				wait for clk_period;
+				assert voted_data = status(i) report "Erroneous status @test " & integer'image(testnr) & " @output-step " & integer'image(i) severity failure;
+			end loop;
+			
+			-- check ecc
+			for i in 4 downto 0 loop
+				wait for clk_period;
+				assert voted_data = ecc(i) report "Erroneous ecc @test " & integer'image(testnr) & " @output-step " & integer'image(i) severity failure;
+			end loop;
+			
+			assert false report "Test " & integer'image(testnr) & " completed successfully" severity note;
+			testnr := testnr + 1;
+		end procedure;
+		
+		procedure test_ecc (
+			data: std_logic_vector(7 downto 0); status : std_logic_vector(2 downto 0)) is
+		begin
+			test_ecc(data,data,data,data,data,status,gen_ecc(data, status));
+		end procedure;
+		
+		procedure test_ecc (
+			data: std_logic_vector(7 downto 0); status : std_logic_vector(2 downto 0); ecc: std_logic_vector(4 downto 0)) is
+		begin
+			test_ecc(data,data,data,data,data,status,ecc);
+		end procedure;
+		-- begin stim_proc
    begin		
       -- hold reset state for 100 ns.
+		reset <= '1';
       wait for 100 ns;	
+		reset <= '0';
+		wait for clk_period;
 
-      wait for clk_period*10;
-		
-		test_ecc_single();
-      -- insert stimulus here 
+		test_ecc("00000000", "000");
+		wait for clk_period*2;
+		test_ecc("11111111", "000");		
+		wait for clk_period*2;
+		test_ecc("10010011", "000");
 
       wait;
    end process;
