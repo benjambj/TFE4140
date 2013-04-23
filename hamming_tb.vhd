@@ -28,6 +28,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 
+use std.textio.all;
  
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -37,9 +38,19 @@ ENTITY hamming_tb IS
 END hamming_tb;
  
 ARCHITECTURE behavior OF hamming_tb IS 
- 
+
     -- Component Declaration for the Unit Under Test (UUT)
- 
+	 
+	 -- function stolen from
+	 -- http://www-ee.uta.edu/Online/Zhu/spring_2007/tutorial/how_to_print_objexts.txt
+  function to_string(sv: Std_Logic_Vector) return string is
+    use Std.TextIO.all;
+    variable bv: bit_vector(sv'range) := to_bitvector(sv);
+    variable lp: line;
+  begin
+    write(lp, bv);
+    return lp.all;
+  end;
 
 
  
@@ -79,6 +90,7 @@ function gen_ecc(d: std_logic_vector(7 downto 0); s: std_logic_vector(2 downto 0
 		ecc(4) := d(0) xor d(1) xor d(2) xor d(3) xor d(4) xor d(5) xor d(6) xor d(7)
 							xor s(0) xor s(1) xor s(2)
 							xor ecc(0) xor ecc(1) xor ecc(2) xor ecc(3);
+		assert false report "(11,15)-Hamming for " & to_string(d & s) & " is " & to_string(ecc) severity note;
 		return ecc;
 	end function;
  
@@ -181,9 +193,11 @@ BEGIN
 		reset <= '0';
 		wait for clk_period;
 
-		test_ecc("00000000", "000");
+		test_ecc("10101010", "000");
 		wait for clk_period*2;
-		test_ecc("11111111", "000");		
+		test_ecc("11111111", "000");
+		wait for clk_period*2;
+		test_ecc("00000000", "000");
 		wait for clk_period*2;
 		test_ecc("10010011", "000");
 

@@ -136,12 +136,15 @@ begin
 					par(i) <= (par(i) xor voted_data_t) and not di_ready;
 				end if;
 			end loop;
-			par(4) <= (par(4) xor out_data) and not di_ready;
 			
 			if state_active(0) = '1' then
 				should_output_parity_bits <= '0';
+				par(4) <= out_data;
 			elsif state_active(bits_in_data) = '1' then
 				should_output_parity_bits <= '1';
+				par(4) <= par(4) xor par(3) xor par(2) xor par(1) xor par(0);
+			else
+				par(4) <= par(4) xor out_data;
 			end if;
 			
 			mp_data_reg <= mp_data;
@@ -150,3 +153,4 @@ begin
 end process;
 	
 end architecture;
+
