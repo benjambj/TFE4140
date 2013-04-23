@@ -41,7 +41,7 @@ ARCHITECTURE behavior OF hamming_tb IS
 
     -- Component Declaration for the Unit Under Test (UUT)
 	 
-	 -- function stolen from
+	 -- function for std_logic_vector to string - stolen from
 	 -- http://www-ee.uta.edu/Online/Zhu/spring_2007/tutorial/how_to_print_objexts.txt
   function to_string(sv: Std_Logic_Vector) return string is
     use Std.TextIO.all;
@@ -82,15 +82,20 @@ ARCHITECTURE behavior OF hamming_tb IS
 function gen_ecc(d: std_logic_vector(7 downto 0); s: std_logic_vector(2 downto 0))
 		return std_logic_vector is
 		variable ecc : std_logic_vector(4 downto 0);
+		
+		-- What way to calculate Hamming code? (which bits are most significant
+		--variable w : std_logic_vector(10 downto 0);
+		variable w : std_logic_vector(0 to 10);
 	begin
-		ecc(0) := d(0) xor d(1) xor d(3) xor d(4) xor d(6) xor s(0) xor s(2);
-		ecc(1) := d(0) xor d(2) xor d(3) xor d(5) xor d(6) xor s(1) xor s(2);
-		ecc(2) := d(1) xor d(2) xor d(3) xor d(7) xor s(0) xor s(1) xor s(2);
-		ecc(3) := d(4) xor d(5) xor d(6) xor d(7) xor s(0) xor s(1) xor s(2);
-		ecc(4) := d(0) xor d(1) xor d(2) xor d(3) xor d(4) xor d(5) xor d(6) xor d(7)
-							xor s(0) xor s(1) xor s(2)
+		w := d & s;
+		ecc(0) := w(0) xor w(1) xor w(3) xor w(4) xor w(6) xor w(8) xor w(10);
+		ecc(1) := w(0) xor w(2) xor w(3) xor w(5) xor w(6) xor w(9) xor w(10);
+		ecc(2) := w(1) xor w(2) xor w(3) xor w(7) xor w(8) xor w(9) xor w(10);
+		ecc(3) := w(4) xor w(5) xor w(6) xor w(7) xor w(8) xor w(9) xor w(10);
+		ecc(4) := w(0) xor w(1) xor w(2) xor w(3) xor w(4) xor w(5) xor w(6) xor w(7)
+							xor w(8) xor w(9) xor w(10)
 							xor ecc(0) xor ecc(1) xor ecc(2) xor ecc(3);
-		assert false report "(11,15)-Hamming for " & to_string(d & s) & " is " & to_string(ecc) severity note;
+		assert false report "(11,15)-Hamming for " & to_string(w) & " is " & to_string(ecc) severity note;
 		return ecc;
 	end function;
  
@@ -142,32 +147,32 @@ BEGIN
 				if do_ready = '1' or output_pulse then
 					output_pulse := true;
 					di_ready <= '0'; -- only effective first itteration
-					assert voted_data = voted(j) report "Erroneous vote @test " & integer'image(testnr) & " @input-step " & integer'image(i) & " @output-step " & integer'image(j) severity failure;
+					assert voted_data = voted(j) report "Erroneous vote @test " & integer'image(testnr) & " @input-step " & integer'image(i) & " @output-step " & integer'image(j) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(j)) & "." severity error;
 					j := j-1;
 				end if;
 			end loop;
 			di_ready <= '0';
 			
-			assert false report "Sendt " & integer'image(7-j) & "data bits before output was ready. j is " & integer'image(j) severity note;
+			assert false report "Sendt " & integer'image(7-j) & "data bits before output was ready." severity note;
 			
 			-- check rest of voted data
 			if j > -1 then -- '-1' means all data bits has been received
 				for i in j downto 0 loop
 						wait for clk_period;
-						assert voted_data = voted(i) report "Erroneous vote @test " & integer'image(testnr) & " @output-step " & integer'image(i) severity failure;
+						assert voted_data = voted(i) report "Erroneous vote @test " & integer'image(testnr) & " @output-step " & integer'image(i) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(i)) & "."  severity error;
 				end loop;
 			end if;
 			
 			-- check status
 			for i in 2 downto 0 loop
 				wait for clk_period;
-				assert voted_data = status(i) report "Erroneous status @test " & integer'image(testnr) & " @output-step " & integer'image(i) severity failure;
+				assert voted_data = status(i) report "Erroneous status @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(status(i)) & "." severity error;
 			end loop;
 			
 			-- check ecc
 			for i in 4 downto 0 loop
 				wait for clk_period;
-				assert voted_data = ecc(i) report "Erroneous ecc @test " & integer'image(testnr) & " @output-step " & integer'image(i) severity failure;
+				assert voted_data = ecc(i) report "Erroneous ecc @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(ecc(i)) & "." severity error;
 			end loop;
 			
 			assert false report "Test " & integer'image(testnr) & " completed successfully" severity note;
@@ -192,12 +197,14 @@ BEGIN
       wait for 100 ns;	
 		reset <= '0';
 		wait for clk_period;
-
-		test_ecc("10101010", "000");
-		wait for clk_period*2;
+		
 		test_ecc("11111111", "000");
 		wait for clk_period*2;
 		test_ecc("00000000", "000");
+		wait for clk_period*2;
+		test_ecc("10101010", "000");
+		wait for clk_period*2;
+		test_ecc("10011010", "000");
 		wait for clk_period*2;
 		test_ecc("10010011", "000");
 

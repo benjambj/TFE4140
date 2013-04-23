@@ -84,7 +84,7 @@ voted_data_t <= y_t when input_active = '1' else
 					 status_bit or status_t(2);
 					
 -- Are we supposed to output par(4) first? (Yes)
-par_bit <= 	par(4) when state_active(bits_in_data) = '1' else
+par_bit <= 	par(4) xor par(3) xor par(2) xor par(1) xor par(0) when state_active(bits_in_data) = '1' else
 				par(3) when state_active(bits_in_data + 1) = '1' else
 				par(2) when state_active(bits_in_data + 2) = '1' else
 				par(1) when state_active(bits_in_data + 3) = '1' else
@@ -96,7 +96,7 @@ out_data <= voted_data_t;
 
 par_enable(0) <= state_active(0) or state_active(1) or state_active(3) or state_active(4) or state_active(6) or state_active(8) or state_active(10);
 par_enable(1) <= state_active(0) or state_active(2) or state_active(3) or state_active(5) or state_active(6) or state_active(9) or state_active(10);
-par_enable(2) <= state_active(2) or state_active(3) or state_active(4) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
+par_enable(2) <= state_active(1) or state_active(2) or state_active(3) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
 par_enable(3) <= state_active(4) or state_active(5) or state_active(6) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
 
 -- Update registers on rising edge
@@ -132,18 +132,23 @@ begin
 			end if;
 			
 			for i in 0 to M-2 loop
-				if par_enable(i) = '1' then
-					par(i) <= (par(i) xor voted_data_t) and not di_ready;
+				if state_active(bits_in_data+4) = '1' then
+					par(i) <= '0';
+				else
+					if par_enable(i) = '1' then
+						par(i) <= (par(i) xor voted_data_t) and not di_ready;
+					end if;
 				end if;
 			end loop;
 			
-			if state_active(0) = '1' then
+			if state_active(bits_in_data+4) = '1' then
 				should_output_parity_bits <= '0';
-				par(4) <= out_data;
-			elsif state_active(bits_in_data) = '1' then
+				par(4) <= '0';
+			elsif state_active(bits_in_data-1) = '1' then
 				should_output_parity_bits <= '1';
-				par(4) <= par(4) xor par(3) xor par(2) xor par(1) xor par(0);
+				par(4) <= out_data xor par(4);
 			else
+				should_output_parity_bits <= should_output_parity_bits;
 				par(4) <= par(4) xor out_data;
 			end if;
 			
