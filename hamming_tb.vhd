@@ -144,6 +144,7 @@ BEGIN
 			for i in 7 downto 0 loop
 				mp_data <= (d0(i), d1(i), d2(i), d3(i));
 				wait for clk_period;
+				di_ready <= '0';
 				if do_ready = '1' or output_pulse then
 					output_pulse := true;
 					di_ready <= '0'; -- only effective first itteration
@@ -151,9 +152,8 @@ BEGIN
 					j := j-1;
 				end if;
 			end loop;
-			di_ready <= '0';
 			
-			assert false report "Sendt " & integer'image(7-j) & "data bits before output was ready." severity note;
+			assert false report "Sendt " & integer'image(j+1) & " data bits before output was ready." severity note;
 			
 			-- check rest of voted data
 			if j > -1 then -- '-1' means all data bits has been received

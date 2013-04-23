@@ -136,7 +136,7 @@ begin
 					par(i) <= '0';
 				else
 					if par_enable(i) = '1' then
-						par(i) <= (par(i) xor voted_data_t) and not di_ready;
+						par(i) <= (par(i) xor voted_data_t);
 					end if;
 				end if;
 			end loop;
