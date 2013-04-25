@@ -124,6 +124,7 @@ BEGIN
    -- Stimulus process
    stim_proc: process
 	is
+		variable sev: severity_level := error;
 		variable testnr : integer := 0;
 		procedure test_ecc (
 			d0: std_logic_vector(7 downto 0);
@@ -148,7 +149,7 @@ BEGIN
 				if do_ready = '1' or output_pulse then
 					output_pulse := true;
 					di_ready <= '0'; -- only effective first itteration
-					assert voted_data = voted(j) report "Erroneous vote @test " & integer'image(testnr) & " @input-step " & integer'image(i) & " @output-step " & integer'image(j) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(j)) & "." severity error;
+					assert voted_data = voted(j) report "Erroneous vote @test " & integer'image(testnr) & " @input-step " & integer'image(i) & " @output-step " & integer'image(j) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(j)) & "." severity sev;
 					j := j-1;
 				end if;
 			end loop;
@@ -159,20 +160,20 @@ BEGIN
 			if j > -1 then -- '-1' means all data bits has been received
 				for i in j downto 0 loop
 						wait for clk_period;
-						assert voted_data = voted(i) report "Erroneous vote @test " & integer'image(testnr) & " @output-step " & integer'image(i) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(i)) & "."  severity error;
+						assert voted_data = voted(i) report "Erroneous vote @test " & integer'image(testnr) & " @output-step " & integer'image(i) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(i)) & "."  severity sev;
 				end loop;
 			end if;
 			
 			-- check status
 			for i in 2 downto 0 loop
 				wait for clk_period;
-				assert voted_data = status(i) report "Erroneous status @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(status(i)) & "." severity error;
+				assert voted_data = status(i) report "Erroneous status @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(status(i)) & "." severity sev;
 			end loop;
 			
 			-- check ecc
 			for i in 4 downto 0 loop
 				wait for clk_period;
-				assert voted_data = ecc(i) report "Erroneous ecc @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(ecc(i)) & "." severity error;
+				assert voted_data = ecc(i) report "Erroneous ecc @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(ecc(i)) & "." severity sev;
 			end loop;
 			
 			assert false report "Test " & integer'image(testnr) & " completed successfully" severity note;
@@ -186,10 +187,29 @@ BEGIN
 		end procedure;
 		
 		procedure test_ecc (
+			d1: std_logic_vector(7 downto 0);
+			d2: std_logic_vector(7 downto 0);
+			d3: std_logic_vector(7 downto 0);
+			d4: std_logic_vector(7 downto 0);
+			expected: std_logic_vector(7 downto 0);
+			status : std_logic_vector(2 downto 0)) is
+		begin
+			test_ecc(d1,d2,d3,d4,expected,status,gen_ecc(expected, status));
+		end procedure;
+		
+		procedure test_ecc (
 			data: std_logic_vector(7 downto 0); status : std_logic_vector(2 downto 0); ecc: std_logic_vector(4 downto 0)) is
 		begin
 			test_ecc(data,data,data,data,data,status,ecc);
 		end procedure;
+		
+		procedure reset_liaison is
+		begin
+			reset <= '1';
+			wait for clk_period;
+			reset <= '0';
+		end procedure;
+		
 		-- begin stim_proc
    begin		
       -- hold reset state for 100 ns.
@@ -198,16 +218,65 @@ BEGIN
 		reset <= '0';
 		wait for clk_period;
 		
-		test_ecc("11111111", "000");
+		test_ecc("11111111", "000"); -- test 0
+		--wait for clk_period*2;
+		test_ecc("00000000", "000"); -- test 1
 		wait for clk_period*2;
-		test_ecc("00000000", "000");
+		test_ecc("10101010", "000"); -- test 2
 		wait for clk_period*2;
-		test_ecc("10101010", "000");
+		test_ecc("10011010", "000"); -- test 3
 		wait for clk_period*2;
-		test_ecc("10011010", "000");
-		wait for clk_period*2;
-		test_ecc("10010011", "000");
-
+		test_ecc("10010011", "000"); -- test 4
+		
+		--TODO: Assert that waiting does not destroy anything
+		--wait for clk_period * 1000;
+		--TODO: Assert that nothing is broken by random input.
+		
+		reset_liaison;
+		
+		-- Old comment -- When system is broken, output from the second MCU is chosen as voted data
+		test_ecc("01111111", "10111111", "11011111", "11101111", "11011111", "111"); -- test 5
+		
+		reset_liaison;
+		 ---       D3 |  D2  |   D1  |  D0|Expected|Status
+		test_ecc(X"80", X"00", X"00", X"00", X"00", "001"); -- test 6
+		test_ecc(X"00", X"80", X"00", X"00", X"00", "010"); -- test 7
+		
+		reset_liaison;
+		
+		
+		-- Test a series of functioning, error, functioning, error, functioning and then broken.
+		test_ecc(X"55", X"55", X"55", X"55", X"55", "000"); -- test 8
+		test_ecc(X"55", X"55", X"55", X"55", X"55", "000"); -- test 9
+		test_ecc(X"AA", X"AA", X"AA", X"AA", X"AA", "000"); -- test 10
+		test_ecc(X"0F", X"0F", X"0F", X"0F", X"0F", "000"); -- test 11
+		--first failure
+		test_ecc(X"0F", X"0F", X"cc", X"0F", X"0F", "001"); -- test 12
+		test_ecc(X"55", X"55", X"55", X"55", X"55", "001"); -- test 13
+		test_ecc(X"55", X"55", X"CA", X"55", X"55", "001"); -- test 14
+		test_ecc(X"55", X"55", X"FE", X"55", X"55", "001"); -- test 15
+		test_ecc(X"AA", X"AA", X"D0", X"AA", X"AA", "001"); -- test 16
+		test_ecc(X"0F", X"0F", X"0D", X"0F", X"0F", "001"); -- test 17
+		--second failure
+		test_ecc(X"4B", X"99", X"99", X"99", X"99", "010"); -- test 18
+		
+		reset_liaison;
+		
+		--------------------------------------------------------------
+		-- Regression tests
+		test_ecc(X"00", X"00", X"40", X"80", X"00", "010"); -- test 19
+		reset_liaison;
+		
+		test_ecc(X"00", X"00", X"40", X"C0", X"00", "010"); -- test 20
+		reset_liaison;
+		
+		test_ecc(X"80", X"40", X"20", X"20", X"20", "010"); -- test 21
+		reset_liaison;
+		
+		test_ecc(X"C0", X"40", X"00", X"00", X"00", "010"); -- test 22
+		reset_liaison;
+		
+		assert false report "test complete yay" severity failure;
       wait;
    end process;
 

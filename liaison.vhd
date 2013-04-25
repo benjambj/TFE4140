@@ -144,13 +144,18 @@ begin
 			if state_active(bits_in_data+4) = '1' then
 				should_output_parity_bits <= '0';
 				par(4) <= '0';
-			elsif state_active(bits_in_data-1) = '1' then
-				should_output_parity_bits <= '1';
-				par(4) <= out_data xor par(4);
 			else
-				should_output_parity_bits <= should_output_parity_bits;
 				par(4) <= par(4) xor out_data;
+				should_output_parity_bits <= state_active(bits_in_data-1) or should_output_parity_bits;
 			end if;
+			
+--			elsif state_active(bits_in_data-1) = '1' then
+--				should_output_parity_bits <= '1';
+--				par(4) <= par(4) xor out_data;
+--			else
+--				should_output_parity_bits <= should_output_parity_bits;
+--				par(4) <= par(4) xor out_data;
+--			end if;
 			
 			mp_data_reg <= mp_data;
       end if;

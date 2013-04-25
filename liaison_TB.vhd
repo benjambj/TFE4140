@@ -117,6 +117,8 @@ assert voted_data = '0'
 
 assert false report "Case 1 successfull" severity note;
 
+wait for clk_period * 5; -- for ecc
+
 
                         -- Case 2: one byte differs in final bit
 word := ("01010101", "01010101", "01010101", "01010100"); 
@@ -312,6 +314,8 @@ wait for clk_period;
     assert voted_data = '0' report "Should not have status one fail" severity failure;
     
     assert false report "Case 4 successfull" severity note;
+	 
+	 wait for clk_period * 5; -- for ecc
     
 --Case 5: Voter must handle new di_ready pulse exactly 11 cycles apart
 --Test strategy: First send last bit differs, and then send first bit differs. 
