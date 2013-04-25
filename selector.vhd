@@ -23,7 +23,7 @@ begin
 -- If MCU 0 and 1 is both untagged and they agree on output,
 -- we can use MCU 0 as output
 use_ab <= not (tagged(1) or tagged(0) or (mcu(1) xor mcu(0)));
-use_cd <= not (tagged(3) or tagged(2) or (mcu(3) xor mcu(2)));
+--use_cd <= not (tagged(3) or tagged(2) or (mcu(3) xor mcu(2)));
 
 --ab <= (mcu(0) and not tagged(0)) or (mcu(1) and not tagged(1));
 ab <= mcu(1) when tagged(1) = '0' else
@@ -40,7 +40,7 @@ cd <= mcu(3) when tagged(3) = '0' else
 
 
 y <= ab when use_ab = '1' else
-	  cd when use_cd = '1' else
+	  cd when (mcu(3) xor mcu(2)) = '0' else --use_cd = '1' else
 	  cd or ab;
 
 --y <= ab when (ab xor cd) = '0' else
