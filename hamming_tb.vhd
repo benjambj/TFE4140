@@ -210,6 +210,11 @@ BEGIN
 			reset <= '0';
 		end procedure;
 		
+		procedure note (
+			msg: string ) is
+		begin
+			assert false report msg severity note;
+		end procedure;
 		-- begin stim_proc
    begin		
       -- hold reset state for 100 ns.
@@ -238,7 +243,11 @@ BEGIN
 		test_ecc("01111111", "10111111", "11011111", "11101111", "11101111", "111"); -- test 5
 		
 		reset_liaison;
-		 ---       D3 |  D2  |   D1  |  D0|Expected|Status
+		
+		note("==============================================");
+		note("These tests are meant to test consecutive data in with the minimum number of cycles");
+		note("==============================================");		
+		---       D3 |  D2  |   D1  |  D0|Expected|Status
 		test_ecc(X"80", X"00", X"00", X"00", X"00", "001"); -- test 6
 		test_ecc(X"00", X"80", X"00", X"00", X"00", "010"); -- test 7
 		

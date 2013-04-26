@@ -62,6 +62,8 @@ signal out_data: std_logic;
 signal should_output_parity_bits: std_logic;
 signal par_bit: std_logic;
 
+signal sa_03610, sa_78910: std_logic;
+
 begin			 			  
 
 voter : entity work.oving3(oving3) port map (
@@ -70,7 +72,7 @@ voter : entity work.oving3(oving3) port map (
                 active => input_active, clk => clk, rst => reset,
                 y => y_t, status => status_t);
 
--- Temeprary result to calculate current status bit,
+-- Temporary result to calculate current status bit,
 -- given we are sending one of the three status bits 
 status_bit <=    status_t(1) when state_active(final_data_send_stage + 2) = '1'
               else
@@ -94,10 +96,21 @@ voted_data <= voted_data_t when should_output_parity_bits = '0' else
 				  par_bit;
 out_data <= voted_data_t;
 
-par_enable(0) <= state_active(0) or state_active(1) or state_active(3) or state_active(4) or state_active(6) or state_active(8) or state_active(10);
-par_enable(1) <= state_active(0) or state_active(2) or state_active(3) or state_active(5) or state_active(6) or state_active(9) or state_active(10);
-par_enable(2) <= state_active(1) or state_active(2) or state_active(3) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
-par_enable(3) <= state_active(4) or state_active(5) or state_active(6) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
+sa_03610 <= state_active(0) or state_active(3) or state_active(6) or state_active(10);
+sa_78910 <= state_active(7) or state_active(8) or state_active(9) or state_active(10);
+
+--par_enable(0) <= sa_03610 or state_active(8);
+--par_enable(1) <= sa_03610 or state_active(9);
+par_enable(0) <= state_active(1) or state_active(4) or state_active(8) or sa_03610;
+par_enable(1) <= state_active(2) or state_active(5) or state_active(9) or sa_03610;
+par_enable(2) <= state_active(1) or state_active(2) or state_active(3) or sa_78910;
+par_enable(3) <= state_active(4) or state_active(5) or state_active(6) or sa_78910;
+
+--par_enable(0) <= state_active(0) or state_active(1) or state_active(3) or state_active(4) or state_active(6) or state_active(8) or state_active(10);
+--par_enable(1) <= state_active(0) or state_active(2) or state_active(3) or state_active(5) or state_active(6) or state_active(9) or state_active(10);
+--par_enable(2) <= state_active(1) or state_active(2) or state_active(3) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
+--par_enable(3) <= state_active(4) or state_active(5) or state_active(6) or state_active(7) or state_active(8) or state_active(9) or state_active(10);
+
 
 -- Update registers on rising edge
 process (clk, reset) is
@@ -131,23 +144,44 @@ begin
 				input_active <= '0';
 			end if;
 			
-			for i in 0 to M-2 loop
-				if state_active(bits_in_data+4) = '1' then
-					par(i) <= '0';
-				else
-					if par_enable(i) = '1' then
-						par(i) <= (par(i) xor voted_data_t);
-					end if;
-				end if;
-			end loop;
+--			for i in 0 to M-2 loop
+--				if state_active(bits_in_data+4) = '1' then
+--					par(i) <= '0';
+--				else
+--					if par_enable(i) = '1' then
+--						par(i) <= (par(i) xor voted_data_t);
+--					end if;
+--				end if;
+--			end loop;
 			
-			if state_active(bits_in_data+4) = '1' then
-				should_output_parity_bits <= '0';
-				par(4) <= '0';
-			else
-				par(4) <= par(4) xor out_data;
-				should_output_parity_bits <= state_active(bits_in_data-1) or should_output_parity_bits;
-			end if;
+			
+		---	if state_active(bits_in_data+4) = '1' then
+		--		should_output_parity_bits <= '0';
+				--par(4) <= '0';
+		--		par <= (others => '0');
+		--	else
+				if state_active(bits_in_data-1) = '1' then
+					should_output_parity_bits <= '1';
+				elsif state_active(bits_in_data+4) = '1' then
+					should_output_parity_bits <= '0';
+				end if;
+				--should_output_parity_bits <= state_active(bits_in_data-1) or should_output_parity_bits;
+				
+				--if par_enable(0) = '1' then
+					par(0) <= (par(0) xor (out_data and par_enable(0))) and not state_active(bits_in_data+4);
+				--end if;
+				--if par_enable(1) = '1' then
+					par(1) <= (par(1) xor (out_data and par_enable(1))) and not state_active(bits_in_data+4);
+				--end if;
+				--if par_enable(2) = '1' then
+					par(2) <= (par(2) xor (out_data and par_enable(2))) and not state_active(bits_in_data+4);
+				--end if;
+				--if par_enable(3) = '1' then
+					par(3) <= (par(3) xor (out_data and par_enable(3))) and not state_active(bits_in_data+4);
+				--end if;
+				par(4) <= (par(4) xor out_data) and not state_active(bits_in_data+4);
+				
+			--end if;
 			
 --			elsif state_active(bits_in_data-1) = '1' then
 --				should_output_parity_bits <= '1';
