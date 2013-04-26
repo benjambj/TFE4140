@@ -124,7 +124,7 @@ BEGIN
    -- Stimulus process
    stim_proc: process
 	is
-		variable sev: severity_level := error;
+		variable sev: severity_level := failure;
 		variable testnr : integer := 0;
 		procedure test_ecc (
 			d0: std_logic_vector(7 downto 0);
@@ -235,7 +235,7 @@ BEGIN
 		reset_liaison;
 		
 		-- Old comment -- When system is broken, output from the second MCU is chosen as voted data
-		test_ecc("01111111", "10111111", "11011111", "11101111", "11011111", "111"); -- test 5
+		test_ecc("01111111", "10111111", "11011111", "11101111", "11101111", "111"); -- test 5
 		
 		reset_liaison;
 		 ---       D3 |  D2  |   D1  |  D0|Expected|Status
@@ -259,22 +259,38 @@ BEGIN
 		test_ecc(X"0F", X"0F", X"0D", X"0F", X"0F", "001"); -- test 17
 		--second failure
 		test_ecc(X"4B", X"99", X"99", X"99", X"99", "010"); -- test 18
-		
+		test_ecc(X"00", X"00", X"00", X"00", X"00", "010"); -- test 19
+		test_ecc(X"AA", X"AA", X"cc", X"AA", X"AA", "010"); -- test 20
+		test_ecc(X"77", X"D8", X"D8", X"D8", X"D8", "010"); -- test 21
+		test_ecc(X"00", X"FF", X"00", X"FF", X"FF", "010"); -- test 22
+		--third failure
+		test_ecc(X"00", X"00", X"00", X"01", X"01", "111"); -- test 23
+		test_ecc(X"00", X"00", X"00", X"00", X"00", "111"); -- test 24
+		test_ecc(X"FF", X"FF", X"FF", X"FF", X"FF", "111"); -- test 25
+		test_ecc(X"DE", X"AD", X"FA", X"CE", X"CE", "111"); -- test 26
 		reset_liaison;
 		
 		--------------------------------------------------------------
 		-- Regression tests
-		test_ecc(X"00", X"00", X"40", X"80", X"00", "010"); -- test 19
+		test_ecc(X"00", X"00", X"40", X"80", X"00", "010"); -- test 27
 		reset_liaison;
 		
-		test_ecc(X"00", X"00", X"40", X"C0", X"00", "010"); -- test 20
+		test_ecc(X"00", X"00", X"40", X"C0", X"00", "010"); -- test 28
 		reset_liaison;
 		
-		test_ecc(X"80", X"40", X"20", X"20", X"20", "010"); -- test 21
+		test_ecc(X"80", X"40", X"20", X"20", X"20", "010"); -- test 29
 		reset_liaison;
 		
-		test_ecc(X"C0", X"40", X"00", X"00", X"00", "010"); -- test 22
+		test_ecc(X"C0", X"40", X"00", X"00", X"00", "010"); -- test 30
 		reset_liaison;
+		
+		test_ecc(X"40", X"80", X"40", X"00", X"40", "010"); -- test 31
+		reset_liaison;
+		
+		--------------------------------------------------------------
+		-- Error code calculation specific tests (ensure corner cases are tested..?)
+		
+		
 		
 		assert false report "test complete yay" severity failure;
       wait;
