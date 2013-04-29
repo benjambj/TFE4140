@@ -1,0 +1,82 @@
+\documentclass[titlepage,12pt,a4paper]{article}
+
+\usepackage[pdftex]{graphicx}
+%\usepackage[symbol]{footmisc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,decorations}
+
+\usepackage{makeidx}
+%\usepackage{showidx}
+\usepackage{parskip}
+\usepackage{float}
+\usepackage{calc}
+\usepackage{pdfpages}
+\usepackage{todonotes}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{pifont}
+\usepackage{pdflscape}
+\usepackage{geometry}
+
+\usepackage[backref=page]{hyperref}
+\def\backref#1{{\scriptsize [#1]}}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.35mm}}
+
+\def\theaipage{\string\hyperpage{\thepage}}
+
+\hypersetup{
+    %bookmarks=true,         % show bookmarks bar?
+    unicode=false,          % non-Latin characters in Acrobats bookmarks
+    pdftoolbar=true,        % show Acrobats toolbar?
+    pdfmenubar=true,        % show Acrobats menu?T
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={Design of Liaison System, TFE4140 Term Project},    % title
+    pdfauthor={Stian Hvatum, Benjamin Bjørnseth},     % author
+    pdfsubject={TFE4140 Term Project},   % subject of the document
+    pdfcreator={Stian Hvatum, Benjamin Bjørnseth},   % creator of the document
+    pdfproducer={Stian Hvatum, Benjamin Bjørnseth}, % producer of the document
+    pdfnewwindow=true,      % links in new window
+    colorlinks,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+
+\begin{document}
+
+\input{./title}
+\pagenumbering{Roman}
+\input{./abstract}
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+
+\newpage
+\pagenumbering{arabic}
+%sections goes here, use \input{file[.tex]}
+
+\section{Introduction}
+\input{./introduction}
+\section{Motivation}
+\input{./background/background}
+\section{Design}
+\input{./description/description}
+\section{Implementation}
+\input{./implementation/implementation}
+\section{Tests}
+\input{./tests/tests}
+\section{Conclusion}
+\input{./conclusion}
+
+\appendix
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\end{document}
