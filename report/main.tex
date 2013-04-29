@@ -8,21 +8,17 @@
 \usetikzlibrary{shapes,decorations}
 
 \usepackage{makeidx}
-\usepackage{wrapfig}
 %\usepackage{showidx}
 \usepackage{parskip}
 \usepackage{float}
-\usepackage{chngpage}
 \usepackage{calc}
 \usepackage{pdfpages}
 \usepackage{todonotes}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{pifont}
-\usepackage{pgfgantt}
 \usepackage{pdflscape}
 \usepackage{geometry}
-\usepackage{nomencl}
 
 \usepackage[backref=page]{hyperref}
 \def\backref#1{{\scriptsize [#1]}}
@@ -40,11 +36,11 @@
     pdfmenubar=true,        % show Acrobats menu?T
     pdffitwindow=false,     % window fit to page when opened
     pdfstartview={FitH},    % fits the width of the page to the window
-    pdftitle={TTK4850 - EiT Byggelandsbyen - Mixxxmaster2000},    % title
-    pdfauthor={Group Mixxmaster2000},     % author
-    pdfsubject={TTK4850 - EiT Byggelandsbyen},   % subject of the document
-    pdfcreator={Group Mixxmaster2000},   % creator of the document
-    pdfproducer={Group Mixxmaster2000}, % producer of the document
+    pdftitle={Design of Liaison System, TFE4140 Term Project},    % title
+    pdfauthor={Stian Hvatum, Benjamin Bjørnseth},     % author
+    pdfsubject={TFE4140 Term Project},   % subject of the document
+    pdfcreator={Stian Hvatum, Benjamin Bjørnseth},   % creator of the document
+    pdfproducer={Stian Hvatum, Benjamin Bjørnseth}, % producer of the document
     pdfnewwindow=true,      % links in new window
     colorlinks,       % false: boxed links; true: colored links
     linkcolor=black,          % color of internal links
@@ -52,9 +48,6 @@
     filecolor=magenta,      % color of file links
     urlcolor=cyan           % color of external links
 }
-
-\makeindex
-\makenomenclature
 
 \begin{document}
 
@@ -64,7 +57,7 @@
 \tableofcontents
 \listoffigures
 %\listoftables
-\printnomenclature
+
 \newpage
 \pagenumbering{arabic}
 %Chapters goes here, use \input{file[.tex]}
@@ -84,18 +77,4 @@
 
 \appendix
 
-\chapter{Design specification}
-\index{design specification}
-\input{../DS/DS_inclusion}
-
-\chapter{Design note}
-\index{design note}
-\input{../DN_Mixxxmaster2000_Hardware/DN_inclusion}
-
-\bibliographystyle{plain}
-\bibliography{bibliography}
-\addcontentsline{toc}{chapter}{Bibliography}
-\newpage
-\addcontentsline{toc}{chapter}{Index}
-\printindex
 \end{document}
