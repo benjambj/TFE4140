@@ -15,8 +15,7 @@ all: ${NAME}.pdf
 clean_all: clean
 	if [ -e '${NAME}.pdf' ]; then rm -f ${NAME}.pdf; fi
 
-${NAME}.pdf: ${FILES} ${NAME}.ind bibliography.bbl
-	${TEX} ${NAME}.tex
+${NAME}.pdf: ${FILES} ${NAME}.bbl
 	${TEX} ${NAME}.tex # to be shure of toc and links
 
 ${NAME}.ind: ${NAME}.idx ${NAME}.nlo
@@ -26,8 +25,11 @@ ${NAME}.ind: ${NAME}.idx ${NAME}.nlo
 ${NAME}.idx: ${NAME}.tex
 	${TEX} ${NAME}.tex
 
-bibliography.bbl:
+${NAME}.bbl: bibliography.bib ${NAME}.aux
 	${BIBTEX} ${NAME}
+
+${NAME}.aux: ${FILES}
+	${TEX} ${NAME}.tex
 
 # Loop though all source files and remove name concated with any temp-extension
 clean:
