@@ -27,6 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+use ieee.numeric_std.all;
 
 use std.textio.all;
  
@@ -126,6 +127,7 @@ BEGIN
 	is
 		variable sev: severity_level := failure;
 		variable testnr : integer := 0;
+		variable i : std_logic_vector(7 downto 0);
 		procedure test_ecc (
 			d0: std_logic_vector(7 downto 0);
 			d1: std_logic_vector(7 downto 0);
@@ -133,7 +135,8 @@ BEGIN
 			d3: std_logic_vector(7 downto 0);
 			voted: std_logic_vector(7 downto 0);
 			status : std_logic_vector(2 downto 0);
-			ecc: std_logic_vector(4 downto 0))
+			ecc: std_logic_vector(4 downto 0);
+			check : boolean)
 		is
 			variable j : integer := 7;
 			variable output_pulse : boolean := false;
@@ -149,7 +152,9 @@ BEGIN
 				if do_ready = '1' or output_pulse then
 					output_pulse := true;
 					di_ready <= '0'; -- only effective first itteration
-					assert voted_data = voted(j) report "Erroneous vote @test " & integer'image(testnr) & " @input-step " & integer'image(i) & " @output-step " & integer'image(j) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(j)) & "." severity sev;
+					if check then
+						assert voted_data = voted(j) report "Erroneous vote @test " & integer'image(testnr) & " @input-step " & integer'image(i) & " @output-step " & integer'image(j) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(j)) & "." severity sev;
+					end if;
 					j := j-1;
 				end if;
 			end loop;
@@ -160,7 +165,9 @@ BEGIN
 			if j > -1 then -- '-1' means all data bits has been received
 				for i in j downto 0 loop
 						wait for clk_period;
-						assert voted_data = voted(i) report "Erroneous vote @test " & integer'image(testnr) & " @output-step " & integer'image(i) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(i)) & "."  severity sev;
+						if check then
+							assert voted_data = voted(i) report "Erroneous vote @test " & integer'image(testnr) & " @output-step " & integer'image(i) & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(voted(i)) & "."  severity sev;
+						end if;
 				end loop;
 			end if;
 			
@@ -173,7 +180,9 @@ BEGIN
 			-- check ecc
 			for i in 4 downto 0 loop
 				wait for clk_period;
-				assert voted_data = ecc(i) report "Erroneous ecc @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(ecc(i)) & "." severity sev;
+				if check then
+					assert voted_data = ecc(i) report "Erroneous ecc @test " & integer'image(testnr) & " @output-step " & integer'image(i)  & ". Value was " & std_logic'image(voted_data) & ", expected " & std_logic'image(ecc(i)) & "." severity sev;
+				end if;
 			end loop;
 			
 			assert false report "Test " & integer'image(testnr) & " completed successfully" severity note;
@@ -184,6 +193,31 @@ BEGIN
 			data: std_logic_vector(7 downto 0); status : std_logic_vector(2 downto 0)) is
 		begin
 			test_ecc(data,data,data,data,data,status,gen_ecc(data, status));
+		end procedure;
+		
+		procedure test_ecc (
+			d1: std_logic_vector(7 downto 0);
+			d2: std_logic_vector(7 downto 0);
+			d3: std_logic_vector(7 downto 0);
+			d4: std_logic_vector(7 downto 0);
+			expected: std_logic_vector(7 downto 0);
+			status : std_logic_vector(2 downto 0);
+			ecc : std_logic_vector(4 downto 0))
+			is
+		begin
+			test_ecc(d1,d2,d3,d4,expected,status,ecc,true);
+		end procedure;
+		
+		procedure test_ecc (
+			d1: std_logic_vector(7 downto 0);
+			d2: std_logic_vector(7 downto 0);
+			d3: std_logic_vector(7 downto 0);
+			d4: std_logic_vector(7 downto 0);
+			expected: std_logic_vector(7 downto 0);
+			status : std_logic_vector(2 downto 0);
+			check : boolean) is
+		begin
+			test_ecc(d1,d2,d3,d4,expected,status,gen_ecc(expected, status), check);
 		end procedure;
 		
 		procedure test_ecc (
@@ -240,7 +274,7 @@ BEGIN
 		reset_liaison;
 		
 		-- Old comment -- When system is broken, output from the second MCU is chosen as voted data
-		test_ecc("01111111", "10111111", "11011111", "11101111", "11101111", "111"); -- test 5
+		test_ecc("01111111", "10111111", "11011111", "11101111", "11000000", "111"); -- test 5
 		
 		reset_liaison;
 		
@@ -273,10 +307,10 @@ BEGIN
 		test_ecc(X"77", X"D8", X"D8", X"D8", X"D8", "010"); -- test 21
 		test_ecc(X"00", X"FF", X"00", X"FF", X"FF", "010"); -- test 22
 		--third failure
-		test_ecc(X"00", X"00", X"00", X"01", X"01", "111"); -- test 23
+		test_ecc(X"00", X"00", X"00", X"01", X"00", "111"); -- test 23
 		test_ecc(X"00", X"00", X"00", X"00", X"00", "111"); -- test 24
 		test_ecc(X"FF", X"FF", X"FF", X"FF", X"FF", "111"); -- test 25
-		test_ecc(X"DE", X"AD", X"FA", X"CE", X"CE", "111"); -- test 26
+		test_ecc(X"DE", X"AD", X"FA", X"CE", X"AD", "111"); -- test 26
 		reset_liaison;
 		
 		--------------------------------------------------------------
@@ -296,8 +330,58 @@ BEGIN
 		test_ecc(X"40", X"80", X"40", X"00", X"40", "010"); -- test 31
 		reset_liaison;
 		
+		test_ecc(X"C0", X"00", X"00", X"40", X"00", "010"); -- test 32
+		reset_liaison;
+		
+		--------------------------------------------------------------
+		-- Hardened tests for internal state persitence and failure orderings
+		
+		for input in 0 to 255 loop
+										i := std_logic_vector(to_unsigned(input,8));
+										test_ecc(i, "000");
+									end loop;
+		for a in 0 to 3 loop
+			test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
+			for input in 0 to 255 loop
+				i := std_logic_vector(to_unsigned(input,8));
+				test_ecc(i, "001");
+			end loop;
+			
+			for b in 0 to 3 loop
+				if a /= b then
+					test_ecc(av(b), bv(b), cv(b), dv(b), X"00", "010");	
+					for input in 0 to 255 loop
+						i := std_logic_vector(to_unsigned(input,8));
+						test_ecc(i, "010");
+					end loop;
+					
+					for c in 0 to 3 loop
+						if a /= c and b /= c then
+							test_ecc(av(c), bv(c), cv(c), dv(c), X"00", "111");
+							for input in 0 to 255 loop
+								i := std_logic_vector(to_unsigned(input,8));
+								test_ecc(i, "111", false);
+							end loop;
+									
+							for d in 0 to 3 loop
+								if a /= d and b /= d and c /= d then
+									test_ecc(av(d), bv(d), cv(d), dv(d), X"00", "111");
+									for input in 0 to 255 loop
+										i := std_logic_vector(to_unsigned(input,8));
+										test_ecc(i, "111", false);
+									end loop;
+								end if;
+							end loop;
+						end if;
+					end loop;
+				end if;
+			end loop;
+		end loop;
+		
+		
 		--------------------------------------------------------------
 		-- Error code calculation specific tests (ensure corner cases are tested..?)
+		
 		
 		
 		
