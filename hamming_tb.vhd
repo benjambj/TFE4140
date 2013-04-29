@@ -80,6 +80,14 @@ ARCHITECTURE behavior OF hamming_tb IS
    -- Clock period definitions
    constant clk_period : time := 10 ns;
 	
+	subtype data is std_logic_vector(7 downto 0);
+	type datavector is array(0 to 3) of data;
+
+		variable av : datavector;
+		variable bv : datavector;
+		variable cv : datavector;
+		variable dv : datavector;
+	
 function gen_ecc(d: std_logic_vector(7 downto 0); s: std_logic_vector(2 downto 0))
 		return std_logic_vector is
 		variable ecc : std_logic_vector(4 downto 0);
@@ -128,6 +136,7 @@ BEGIN
 		variable sev: severity_level := failure;
 		variable testnr : integer := 0;
 		variable i : std_logic_vector(7 downto 0);
+	
 		procedure test_ecc (
 			d0: std_logic_vector(7 downto 0);
 			d1: std_logic_vector(7 downto 0);
@@ -192,7 +201,7 @@ BEGIN
 		procedure test_ecc (
 			data: std_logic_vector(7 downto 0); status : std_logic_vector(2 downto 0)) is
 		begin
-			test_ecc(data,data,data,data,data,status,gen_ecc(data, status));
+			test_ecc(data,data,data,data,data,status,gen_ecc(data, status), true);
 		end procedure;
 		
 		procedure test_ecc (
@@ -335,6 +344,26 @@ BEGIN
 		
 		--------------------------------------------------------------
 		-- Hardened tests for internal state persitence and failure orderings
+		
+		av(0) := X"80";
+		av(1) := X"00";
+		av(2) := X"00";
+		av(3) := X"00";
+		
+		bv(0) := X"00";
+		bv(1) := X"80";
+		bv(2) := X"00";
+		bv(3) := X"00";
+		
+		cv(0) := X"00";
+		cv(1) := X"00";
+		cv(2) := X"80";
+		cv(3) := X"00";
+		
+		dv(0) := X"00";
+		dv(1) := X"00";
+		dv(2) := X"00";
+		dv(3) := X"80";
 		
 		for input in 0 to 255 loop
 										i := std_logic_vector(to_unsigned(input,8));
