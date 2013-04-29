@@ -1,0 +1,10 @@
+\section{Conclusion}
+From testing and verifying software prototype this report displays a working proof of concept of a feedback cancellation  algorithm based on the two-stage NHS method. The front end interface and output interface has been constructed and tested. All has been verified to work according to specifications.
+
+\section{Further work}
+The NHS algorithm is a simple one, and in this design it is further simplified. There are a number of ratios used in NHS that can be calculated to improve the detection capabilities, examples of these ratios can be found in \cite{van_waterschoot_fifty_2011}. \\
+
+There are also more advanced algorithms for removing feedback, for instance a AFC-method(Adaptive Feedback Cancellation). The AFC uses system identification to detect the feedback path and models its inverse, thereby cancelling the coupling. Details can be found in \cite{van_waterschoot_fifty_2011}.\\
+
+Transforming the system from a software prototype to a hardware prototype can be done by as previously stated using a FPGA as the DSP-module and implementing the algorithm on it.\\
+The broader goal is a finished product. Working on product design, a complete hardware design and doing marked research are all important tasks in completing the project.

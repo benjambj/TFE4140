@@ -1,0 +1,101 @@
+\documentclass[titlepage,12pt,a4paper]{report}
+
+\usepackage[pdftex]{graphicx}
+%\usepackage[symbol]{footmisc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,decorations}
+
+\usepackage{makeidx}
+\usepackage{wrapfig}
+%\usepackage{showidx}
+\usepackage{parskip}
+\usepackage{float}
+\usepackage{chngpage}
+\usepackage{calc}
+\usepackage{pdfpages}
+\usepackage{todonotes}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{pifont}
+\usepackage{pgfgantt}
+\usepackage{pdflscape}
+\usepackage{geometry}
+\usepackage{nomencl}
+
+\usepackage[backref=page]{hyperref}
+\def\backref#1{{\scriptsize [#1]}}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.35mm}}
+\renewcommand{\nomname}{List of Abbreviations}
+
+\def\theaipage{\string\hyperpage{\thepage}}
+\graphicspath{{../DS/}{../DN_Mixxxmaster2000_Hardware/}}
+
+\hypersetup{
+    %bookmarks=true,         % show bookmarks bar?
+    unicode=false,          % non-Latin characters in Acrobats bookmarks
+    pdftoolbar=true,        % show Acrobats toolbar?
+    pdfmenubar=true,        % show Acrobats menu?T
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={TTK4850 - EiT Byggelandsbyen - Mixxxmaster2000},    % title
+    pdfauthor={Group Mixxmaster2000},     % author
+    pdfsubject={TTK4850 - EiT Byggelandsbyen},   % subject of the document
+    pdfcreator={Group Mixxmaster2000},   % creator of the document
+    pdfproducer={Group Mixxmaster2000}, % producer of the document
+    pdfnewwindow=true,      % links in new window
+    colorlinks,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+
+\makeindex
+\makenomenclature
+
+\begin{document}
+
+\input{./title}
+\pagenumbering{Roman}
+\input{./abstract}
+\tableofcontents
+\listoffigures
+%\listoftables
+\printnomenclature
+\newpage
+\pagenumbering{arabic}
+%Chapters goes here, use \input{file[.tex]}
+
+\chapter{Introduction}
+\input{./introduction}
+\chapter{Motivation}
+\input{./background/background}
+\chapter{Design}
+\input{./description/description}
+\chapter{Implementation}
+\input{./implementation/implementation}
+\chapter{Tests}
+\input{./tests/tests}
+\chapter{Conclusion}
+\input{./conclusion}
+
+\appendix
+
+\chapter{Design specification}
+\index{design specification}
+\input{../DS/DS_inclusion}
+
+\chapter{Design note}
+\index{design note}
+\input{../DN_Mixxxmaster2000_Hardware/DN_inclusion}
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
+\addcontentsline{toc}{chapter}{Bibliography}
+\newpage
+\addcontentsline{toc}{chapter}{Index}
+\printindex
+\end{document}

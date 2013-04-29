@@ -1,0 +1,76 @@
+%Is section
+Here the tests that the software prototype was put through will be discussed. The focus of these tests was to verify that the system behaved as wanted, and to verify the functionality of the independent modules. 
+
+\subsection{C-EQ}
+\subsubsection{Full filter list}
+\emph{Expected:}
+When the circular buffer containing the filters is full, nothing should happen when trying to insert a new filter.
+
+\emph{Execution:}
+We wrote a test program where the constant {\ttfamily MAX\_FILTERS} was set to \emph{3}, and we tried to insert 10 filters.
+
+\emph{Result:}
+Only three filters were inserted, warnings were given.
+
+\subsubsection{Filters are removed}
+\emph{Expected: }
+When the TTL \nomenclature{TTL}{Time-To-Live}(\textbf{T}ime \textbf{T}o \textbf{L}ive) belonging to a filter reaches 0, it should be removed. The TTL value should be decremented each time the filter is sent as an argument to the EQ function.
+
+\emph{Execution:}
+We wrote a test program that inserted three filters with TTL initialized to 10, ran the EQ function 10 times on each of the filters.
+
+\emph{Result:}
+All of the filters was removed.
+
+\subsubsection{The C-EQ applies the filters correctly}
+\emph{Expected:}
+When applying a filter that removes a specific frequency from a sample, this frequency should be completely removed in the resulting output.
+
+\emph{Execution:}
+We used Audacity to generate a sine tone ranging from 200Hz to 400Hz, used this as input for our test, and removed the 300Hz frequency.
+
+\emph{Result:}
+By examining the resulting frequency spectrum we were able to verify that the 300Hz frequency was removed from the input.
+
+\subsubsection{The C-EQ is able to get instructions from a TCP socket}
+\emph{Expected:}
+When receiving correctly formatted instructions over the correct port over TCP, the C-EQ should attempt to insert new filters corresponding to the parameters in the instructions.
+
+\emph{Execution:}
+We started the C-EQ and sent correctly formatted instructions over TCP using \emph{nc} (NetCat).
+
+\emph{Result:}
+The correct filters were inserted and applied.
+
+\subsection{Software prototype}
+\subsubsection{Test of MATLAB howling detection}
+\emph{Expected:} The howling detection should be able to detect the sinus in a random signal.
+
+\emph{Execution:} We designed a single vector containing zero-mean white noise summed with a single sinus and fed this into the howling detection algorithm.
+
+\emph{Result:} The howling detection returns the frequency from the sinus as expected.
+\subsubsection{Howling frequencies are removed}
+\emph{Expected:}
+When the prototype is given a sound stream with a howling frequency, MATLAB tells the C-EQ to remove this frequency, and C-EQ removes the frequency.
+
+\emph{Execution:} 
+We sent a sound stream containing a voice sample and an artificial howling frequency of 550Hz through the C-EQ and copied the stream to MATLAB. Figure \ref{figure:spectrogram} is the spectrogram of the raw signal, the howling frequency can easily be seen. In spectrogram the magnitude of each frequency over time can be seen, the darker the colour is the higher the magnitude.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=12cm]{tests/bushwithhowling}
+
+\caption{Spectrogram of voice sample with increasing howling in background}
+\label{figure:spectrogram}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=12cm]{tests/bushwNHS}
+\caption{Spectrogram of voice sample with increasing sinus in background, with NHS}
+\label{figure:spectrogram_NHS}
+\end{figure}
+
+\emph{Result:}
+From figure \ref{figure:spectrogram_NHS} it can be seen that MATLAB detects the howling when i reaches a great enough magnitude. The C-EQ is signalled, and the howling frequency was removed as expected. Time to live on the filter is 5 seconds, so after 5 seconds the filter is shut of and the howling returns. Once again it is detected and removed.
+

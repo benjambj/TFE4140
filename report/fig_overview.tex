@@ -1,0 +1,28 @@
+\newcommand{\mic}{
+    \tikz \draw[black]
+    (.2,-.5)--(.2,.5)
+    (0,0) circle(0.2);
+}
+\newcommand{\spkr}{
+    \tikz
+ \draw[black]
+     (0,.3)--(0,-.3)
+     --(0.2,-.1)--(0.2,.1)--(0,.3)
+    (0.2,.25)--(0.4,.25)--(0.4,-.25)--(0.2,-.25)--(.2,.25)
+;
+    
+}
+
+\begin{tikzpicture}
+    \node[](mic) at (0,0){\mic};
+    \node[rectangle, draw, right=2em of mic](sampler){Sampler};
+    \node[rectangle, draw, right=2em of sampler](eq){EQ};
+    \node[rectangle, draw, above=2em of eq](MATLAB){MATLAB};
+    \node[right=2em of eq](spkr){\spkr};
+
+    \draw[-latex](mic) -- (sampler);
+    \draw[-latex](sampler) -- (eq);
+    \draw[-latex](sampler) |- (MATLAB);
+    \draw[-latex](MATLAB) -- (eq);
+    \draw[-latex](eq) -- (spkr);
+\end{tikzpicture}

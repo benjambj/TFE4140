@@ -1,0 +1,34 @@
+
+\section{Modules overview}
+More information about the modules can be found in \autoref{apx:DS} and \ref{apx:HW_DN}. 
+
+\subsection{Front-end interface}
+The front-end interface\index{Front-end interface}(FEI) is our way of implementing the input amplifier\index{Input amplifier} and analog-to-digital converter\index{ADC}. The FEI \nomenclature{FEI}{Front-end interface} also implements a phantom power\index{phantom power} supply for the external microphone, following the 48V standard for phantom power. \\
+When designing the FEI a few specifications are important to consider: 
+
+The dynamic range\index{dynamic range} (the difference between the strongest and the weakest signal detectable) of human hearing\index{human hearing} is very high. This allows us to hear very faint sounds. Therefore, the FEI\index{Front-end interface} must have a very low noise\index{noise} output, in order for the user experience to be pleasant. The solution is to make a low noise amplifier and use a high resolution ADC\index{ADC}. 
+
+The FEI also has variable gain and clipping detection. The variable gain is implemented in the input amplifier and the clipping detection is a feature of the ADC\index{ADC}, which has digital outputs to indicate clipping\index{clipping}. 
+
+To reduce noise picked up by the cable\index{cable} (microphone lead), the analog\index{analog} signal input is of the differential\index{differential} type. This cancels out noise\index{noise} picked up by both wires (common-mode noise). Using differential\index{differential} signals is also the standard in professional audio equipment. 
+
+In order to comply with other audio equipment, the voltage levels must be the same for a full-scale signal as the standard dictates. This (along with the voltage levels of the ADC\index{ADC}) in turn dictates the gain of the input amplifier. 
+
+The output impedance\index{impedance} of a modern microphone is typically very low (less than 200 ohms). Therefore the input impedance of the FEI\index{Front-end interface} does not have to by very high. A value in the order of 10 kohms will suffice. Keeping the impedance low is desirable, since a higher impedance will produce more noise. 
+
+\subsection{Output interface}
+The output interface (OI) is our way of implementing the digital-to-analog converter\index{DAC} and output amplifier\index{Output amplifier}. For the same reasons of human hearing\index{human hearing} characteristics as for the front-end interface\index{Front-end interface}, the OI\index{Output interface} must have low noise amplifiers and a high resolution DAC\index{DAC}.\nomenclature{DAC}{Digital to analog converter}  
+
+The bandwidth of the OI\nomenclature{OI}{Output interface}  must be the same as the whole system. The OI does not need a precise high pass filter, only AC\nomenclature{AC}{Alternating current}  coupling capacitors able to pass a signal of low enough frequency.  
+
+\subsection{DSP module} \index{DSP}
+Between the front-end interface\index{Front-end interface} and the output interface, there is a digital signal processing module that handles the feedback detection and the sound filtering.
+In order to avoid to much delay in this unit, the feedback detection module must copy a chunk of the sound stream and process it without blocking the stream. This makes the
+system asynchronous, and there will be a short delay from the howling is present until it has been detected.
+
+The original sound stream\index{sound stream} is sent through the filtering unit which removes those frequencies signaled by the feedback detection module. This way, the feedback detection
+module can use some time analyzing the sound stream without delaying the sound. The sound is then sent on to the output interface\index{Output interface}, where the digital sound stream is
+converted to real sound without the howling\index{howling} frequencies.
+
+Our idea was to use an FPGA\index{FPGA}\nomenclature{FPGA}{Field-programmable gate array}  and its DSP-slices\index{DSP-slices} to implement this functionality. There are plenty of example code the Internet on how to implement both Notch filtering\index{Notch-filter} and 
+Fast Fourier Transform \index{FFT}\nomenclature{FFT}{Fast Fourier Transform} on an FPGA, which would make this approach a lot easier than if we had to do everything from scratch.
