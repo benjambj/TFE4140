@@ -1,4 +1,4 @@
-\documentclass[titlepage,12pt,a4paper]{report}
+\documentclass[titlepage,12pt,a4paper]{article}
 
 \usepackage[pdftex]{graphicx}
 %\usepackage[symbol]{footmisc}
@@ -59,19 +59,19 @@
 
 \newpage
 \pagenumbering{arabic}
-%Chapters goes here, use \input{file[.tex]}
+%sections goes here, use \input{file[.tex]}
 
-\chapter{Introduction}
+\section{Introduction}
 \input{./introduction}
-\chapter{Motivation}
+\section{Motivation}
 \input{./background/background}
-\chapter{Design}
+\section{Design}
 \input{./description/description}
-\chapter{Implementation}
+\section{Implementation}
 \input{./implementation/implementation}
-\chapter{Tests}
+\section{Tests}
 \input{./tests/tests}
-\chapter{Conclusion}
+\section{Conclusion}
 \input{./conclusion}
 
 \appendix
