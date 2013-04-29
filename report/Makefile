@@ -5,7 +5,7 @@ NAME=main
 
 # Find all .tex-files in current dir
 FILES=$(filter %.tex, $(shell /usr/bin/find .))
-TEMP_EXTS=aux log toc idx ind ilg lot lof bbl blg brf out
+TEMP_EXTS=aux log toc idx ind ilg lot lof bbl blg brf out nls nlo
 TEMPS=$(patsubst %.tex, %, ${FILES})
 
 .PHONY: clean clean_all
