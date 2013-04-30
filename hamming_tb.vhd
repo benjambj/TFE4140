@@ -83,10 +83,10 @@ ARCHITECTURE behavior OF hamming_tb IS
 	subtype data is std_logic_vector(7 downto 0);
 	type datavector is array(0 to 3) of data;
 
-		variable av : datavector;
-		variable bv : datavector;
-		variable cv : datavector;
-		variable dv : datavector;
+		shared variable av : datavector;
+		shared variable bv : datavector;
+		shared variable cv : datavector;
+		shared variable dv : datavector;
 	
 function gen_ecc(d: std_logic_vector(7 downto 0); s: std_logic_vector(2 downto 0))
 		return std_logic_vector is
@@ -202,6 +202,12 @@ BEGIN
 			data: std_logic_vector(7 downto 0); status : std_logic_vector(2 downto 0)) is
 		begin
 			test_ecc(data,data,data,data,data,status,gen_ecc(data, status), true);
+		end procedure;
+		
+		procedure test_ecc (
+			data: std_logic_vector(7 downto 0); status : std_logic_vector(2 downto 0); check : boolean) is
+		begin
+			test_ecc(data,data,data,data,data,status,gen_ecc(data, status), check);
 		end procedure;
 		
 		procedure test_ecc (
@@ -366,10 +372,12 @@ BEGIN
 		dv(3) := X"80";
 		
 		for input in 0 to 255 loop
-										i := std_logic_vector(to_unsigned(input,8));
-										test_ecc(i, "000");
-									end loop;
+			i := std_logic_vector(to_unsigned(input,8));
+			test_ecc(i, "000");
+		end loop;
+		
 		for a in 0 to 3 loop
+			note("Testvector {" & integer'image(a)& "}");
 			test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
 			for input in 0 to 255 loop
 				i := std_logic_vector(to_unsigned(input,8));
@@ -378,6 +386,9 @@ BEGIN
 			
 			for b in 0 to 3 loop
 				if a /= b then
+					reset_liaison;
+					test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
+					note("Testvector {" & integer'image(a) & ", " & integer'image(b) & "}");
 					test_ecc(av(b), bv(b), cv(b), dv(b), X"00", "010");	
 					for input in 0 to 255 loop
 						i := std_logic_vector(to_unsigned(input,8));
@@ -386,7 +397,11 @@ BEGIN
 					
 					for c in 0 to 3 loop
 						if a /= c and b /= c then
-							test_ecc(av(c), bv(c), cv(c), dv(c), X"00", "111");
+							reset_liaison;
+							test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
+							test_ecc(av(b), bv(b), cv(b), dv(b), X"00", "010");	
+							note("Testvector {" & integer'image(a) & ", " & integer'image(b) & ", " & integer'image(c) & "}");
+							test_ecc(av(c), bv(c), cv(c), dv(c), X"00", "111", false);					
 							for input in 0 to 255 loop
 								i := std_logic_vector(to_unsigned(input,8));
 								test_ecc(i, "111", false);
@@ -394,7 +409,12 @@ BEGIN
 									
 							for d in 0 to 3 loop
 								if a /= d and b /= d and c /= d then
-									test_ecc(av(d), bv(d), cv(d), dv(d), X"00", "111");
+									reset_liaison;
+									test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
+									test_ecc(av(b), bv(b), cv(b), dv(b), X"00", "010");	
+									test_ecc(av(c), bv(c), cv(c), dv(c), X"00", "111", false);					
+									note("Testvector {" & integer'image(a) & ", " & integer'image(b) & ", "	& integer'image(c) &	", " & integer'image(d) &	"}");
+									test_ecc(av(d), bv(d), cv(d), dv(d), X"00", "111", false);
 									for input in 0 to 255 loop
 										i := std_logic_vector(to_unsigned(input,8));
 										test_ecc(i, "111", false);
@@ -405,6 +425,7 @@ BEGIN
 					end loop;
 				end if;
 			end loop;
+			reset_liaison;
 		end loop;
 		
 		
