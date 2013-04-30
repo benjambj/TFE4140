@@ -1,0 +1,16 @@
+The liaison system was verified utilizing automated testbenches. The testbenches uses VHDL assertions to notify the tester if some
+tests failed. In order to create a good, short but extensive testbench, we have built a collection of procedures that takes input, expected output
+and expected system status after all input has been sent. The test cases was divided into three blocks.
+\begin{itemize}
+\item The first test block consists of 8 tests that asserts the normal behaviour. It is done with some easy cases and a 2 cycle delay between inputs.
+
+\item The second test block consists of 24 corner case tests where our design was likly to have flaws. During development, these tests were
+triggered often, proving their value.   
+
+\item The third and last test block is a permutation of all fail states (including all working), and for each possible state, let all MCUs send
+all possible inputs (all MCUs sends the same value to keep the number of tests down to an affordable number). This block consists of 16 836 different test cases.
+\end{itemize}
+
+\begin{lstlisting}
+    for 
+\end{lstlisting}
