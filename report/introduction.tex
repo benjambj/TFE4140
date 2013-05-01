@@ -23,11 +23,11 @@ There are several ways to tackle this design issue. One would be to
 introduce redundancy in the components which communicates with the
 duplicated component---if you duplicated a sensor, for instance, you
 could also duplicate the processors it communicates with. Another
-strategy would be to add another components which combines the output
+strategy would be to add other components which combines the output
 from the duplicated components and sends this as input to the
 peripheral unit.
 
-\subsection{Description of problem} \todo{Or Problem Statement?}  
+\subsection{The Problem}
 
 Our task was to design a system component, named the Liaison System,
 which handled this problem by taking the latter
@@ -36,8 +36,11 @@ environment containing four microprocessor performing the same
 computation. This environment is depicted in
 \autoref{fig:systemenvironment}. 
 
-\missingfigure{Figure of the Liaison system environment}
-\label{fig:systemenvironment}
+\begin{figure}
+    \missingfigure{Figure of the Liaison system environment}
+    \caption{The Liaison System Environment}
+    \label{fig:systemenvironment}
+\end{figure}
 
 These microprocessors emit eight bit data words serially. The task of
 the Liaison System was to perform a majority vote amongst the
@@ -65,12 +68,10 @@ this point. The status codes are listed in \autoref{tab:systemstatus}.
 In addition to this, the Liaison should also be able to generate an
 error correcting code which could be used to detect and repair a one
 bit error and detect a two bit error in the data word and status. We
-were required to use a Hamming code.\todo{Reference?}
+were required to use a Hamming code\cite{task}\cite{ecc}.
 
 It was also stated that the design should focus on getting a small an
 implementation of this as possible.
 
 Finally, in addition to designing the Liaison system, we should also
 perform an evaluation of its expected lifetime.
-
-\subsection{Description of solution}\todo{Skal dette være med?}
