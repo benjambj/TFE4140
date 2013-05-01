@@ -15,4 +15,6 @@ and cover almost any possible state. The states that are not covered are those w
 the second block.
 \end{itemize}
 
-The entire testbench can be found in {\ttfamily hamming\_tb.hdl}.
+Since all permutations of fail states and all permutations of valid input within these states
+were applied to the circuit during simulation, we are confident that the Liaison System is working correctly. We have also tested the circuit with a post-place and route
+simulation verifying that the output is also correct with timing taken into account\footnote{The timing simulation was done with iSim from Xilinx, synthesised with XST. Both tools are part of the ISE Design Suite}.
