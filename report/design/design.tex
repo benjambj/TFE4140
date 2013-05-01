@@ -31,11 +31,11 @@ where different sections of the stream have different sources (data, status, ECC
 
 \subsection{Error Correcting Code Generator}
 To provide reliable output for long distance transmission of data, the Liaison System adds an error correcting code to its data packets. The Error
-Correcting Code Generator generates (11,16)-Hamming code on the fly and attaches the code at the end of the output stream. This module uses information
+Correcting Code Generator generates (16,11)-Hamming code on the fly and attaches the code at the end of the output stream. This module uses information
 from the Voter to get the first 8 data bits and information from the State Maintainance to get the status word. It also uses information on current 
 data bit position from the State Maintainance module, since Hamming Code is generated using parity of bits at specific positions\cite{ecc}.
 
-When (11,16)-Hamming code is used, we are able to correct a single error in the packet, but we are also able to detect up to two errors in the same packet.
+When (16,11)-Hamming code is used, we are able to correct a single error in the packet, but we are also able to detect up to two errors in the same packet.
 The first 4 bits in the Hamming code is used for error correction of a single bit, and the additional bit adds the ability to detect another error.
 
 \subsection{Output mulitplexer}
