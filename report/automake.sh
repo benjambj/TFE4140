@@ -1,1 +1,1 @@
-while inotifywait main.tex */*.tex; do make; done
+while inotifywait *.tex *.bib */*.tex; do make; done
