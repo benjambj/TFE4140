@@ -22,12 +22,91 @@ are likely to have a non-zero covariance. The assumption is still made
 to make the calculations easier. If a more accurate model is
 desirable, dependence should be taken into account.
 
-\begin{align*}
-Q(4) + Q(3) &= \binom{4}{4}P(t)^4 + \binom{4}{3}P(t)^3(1 - P(t)) \\
-            &= (e^{\frac{t}{6}})^4  + 4 (e^{\frac
+With these assumptions, $f(t) = \frac{1}{6}e^{-\frac{1}{6}t}$ is the
+probability density function of a failure event for an individual
+microcontroller, and $F(t) = 1 - e^{-\frac{1}{6}t}$ is the
+corresponding cumulative distribution giving the probability that the
+microcontroller has failed within time $t$. Consequently, we can
+define $P(t) := 1 - F(t) = e^{-\frac{1}{6}t}$ to be the probability
+that the microcontroller has not failed within time $t$. Assuming as
+we have that each microcontroller is independent, we can view the
+potential of failure within a given time as a Bernoulli trial for each
+of the microcontrollers. Consequently, the probability that exactly
+$r$ microcontrollers have not failed within time $t$, as a function of
+$t$, is given by $Q(r) = \binom{4}{r}P(t)^4(1 - P(t))^{4 - r})$. With
+this framework, we can begin answering the questions stated in
+\autoref{sec:problem}.
 
-}
+\subsubsection{Calculation of Probability of Error in Maximum One Controller}
+\label{sec:errorinmaxone}
+The probability that at most one controller has failed is the
+probability that either four or three controllers are still
+working. Since these two events are independent---there cannot be both
+exactly four and exactly three microcontrollers that are still working
+at a point in time---the total probability is the sum of the
+probability of each event. Hence, the probability of an error in at
+most one controller within a given time $t$ is given by
+
+\begin{align*}
+    Q(4) + Q(3) &= \binom{4}{4}P(t)^4 + \binom{4}{3}P(t)^3(1 - P(t)) \\
+                &= (e^{-\frac{t}{6}})^4  + 4 (e^{-\frac{t}{6}})^3(1 - e^{-\frac{t}{6}}) \\
+                &= 
 \end{align*}
+
+\subsubsection{Calculation of Probability of Error in Maximum Two Controllers}
+\label{sec:errorinmaxtwo}
+This probability is the same as the probability that either exactly
+four, exactly three or exactly two microcontrollers are still working
+by time $t$. By the same logic as given in
+\autoref{sec:errorinmaxone}, this is the same as
+\begin{align*}
+  &Q(4) + Q(3) + Q(2) = \\
+  &\binom{4}{4}P(t)^4 + \binom{4}{3}P(t)^3(1 - P(t)) + \binom{4}{2}P(t)^2(1 - P(t))^2 = \\
+  &
+\end{align*}
+
+This function describes the probability that the system is still alive
+within time $t$. For future reference, we shall denote it as $R(t)$.
+
+\subsubsection{Calculation of Probability in At Least Three Controllers}
+\label{sec:errorinatleastthree}
+At least three controllers being broken within time $t$ is the
+complement of the event that at most two controllers have failed
+within time $t$. Thus, this probability is simply the negation of the
+result derived in \autoref{sec:errorinmaxtwo}, which is
+\begin{align*}
+  1 - R(t) = 1 - (Q(4) + Q(3) + Q(2)) = 
+\end{align*}
+
+\subsubsection{Mean Time to Failure}
+The mean time to system failure is the expected value of a stochastic
+variable $X$ denoting time until at least three microcontrollers have
+failed. Now, $Prob\{X \le t\} = Prob\{\text{System has failed within
+  time } t\}$, so the cumulative distribution function of $X$,
+$F_X(t)$, is given by the result in
+\autoref{sec:errorinatleastthree}. If we denote the probability
+density function of $X$ by $f_X(t) = \frac{\partial}{\partial
+  t}F_x(t)$, we get that
+
+\begin{align*}
+  E[X] &= \int_0^{\infty}tf_X(t)dt = \int_0^{\infty}t\frac{\partial}{\partial t} F_X(t)dt \\
+       &= \lim_{b \to \infty}[tF_X(t)]_{0}^b - \int_0^{\infty}F_X(t)dt \\
+       &= \lim_{b \to \infty}[tF_X(t)]_0^b - \int_0^{\infty}1 - R(t)dt \\
+       &= \lim_{b \to \infty}[tF_X(t)]_0^b - \int_0^\infty1dt + \int_0^{\infty}R(t)dt \\
+       &= \lim_{b \to \infty}[tF_X(t)]_0^{\infty} - \lim_{b \to \infty}[t]_0^b + \int_0^{\infty}R(t)dt \\
+       &= \lim_{b \to \infty}(bF_X(b) - 0F_X(0)) - \lim_{b \to \infty}(b - 0) + \int_0^{\infty}R(t)dt \\
+       &= \lim_{b \to \infty}bF_X(b) - \lim_{b \to \infty}b + \int_0^{\infty}R(t)dt \\
+       &= \lim_{b \to \infty}b\lim_{b \to \infty}F_X(b) - \lim_{b \to \infty}b + \int_0^{\infty}R(t)dt \\
+       &= \lim_{b \to \infty}(b - b) + \int_0^{\infty}R(t)dt \\
+       &= \int_0^{\infty}R(t)dt
+\end{align*}
+
+%\begin{align*}
+%x = 3
+%Q(4) + Q(3) &= P(t)^4 + \binom{4}{3}P(t)^3(1 - P(t)) 
+%             &= (e^{\frac{t}{6}})^4  + 4 (e^{\frac{t}{6}})^3(1 - e^{\frac{t}{6}})
+
+%%%%%\end{align*}
 
 \subsection{Possible Simplifications}
 Overall parity bit simplification?
