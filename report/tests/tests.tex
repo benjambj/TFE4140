@@ -1,3 +1,4 @@
+\subsection{Overview}
 The liaison system was verified utilizing automated testbenches. The testbenches uses VHDL assertions to notify the author if any
 of the tests failed. In order to create a good and short but extensive testbench, we have built a collection of procedures that takes input, expected output
 and expected system status after all input has been sent.
@@ -18,3 +19,34 @@ the second block.
 Since all permutations of fail states and all permutations of valid input within these states
 were applied to the circuit during simulation, we are confident that the Liaison System is working correctly. We have also tested the circuit with a post-place and route
 simulation verifying that the output is also correct with timing taken into account\footnote{The timing simulation was done with iSim from Xilinx, synthesised with XST. Both tools are part of the ISE Design Suite}.
+
+\subsection{Conformance with requirements specification}
+This section explain the conformance with each point in the system requirements specification.
+\begin{enumerate}
+\item{\textbf{The Liaison Interface}} \hfill\\
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+\item{\textbf{Voting}} \hfill\\
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+\item{\textbf{Error tagging}} \hfill\\
+    Not part of spec, but must do to confirm with status and voting
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+\item{\textbf{System status}} \hfill\\
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+\item{\textbf{Error correcting code}} \hfill\\
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+\item{\textbf{Reset behaviour}} \hfill\\
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+
+\item{\textbf{System consitency}} \hfill\\
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+\item{\textbf{New data after $11+m$ cycles}} \hfill\\
+    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+
+\end{enumerate}
