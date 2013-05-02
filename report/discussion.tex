@@ -93,13 +93,15 @@ density function of $X$ by $f_X(t) = \frac{\partial}{\partial
        &= \lim_{b \to \infty}[tF_X(t)]_{0}^b - \int_0^{\infty}F_X(t)dt \\
        &= \lim_{b \to \infty}[tF_X(t)]_0^b - \int_0^{\infty}1 - R(t)dt \\
        &= \lim_{b \to \infty}[tF_X(t)]_0^b - \int_0^\infty1dt + \int_0^{\infty}R(t)dt \\
-       &= \lim_{b \to \infty}[tF_X(t)]_0^{\infty} - \lim_{b \to \infty}[t]_0^b + \int_0^{\infty}R(t)dt \\
+       &= \lim_{b \to \infty}[tF_X(t)]_0^b - \lim_{b \to \infty}[t]_0^b + \int_0^{\infty}R(t)dt \\
        &= \lim_{b \to \infty}(bF_X(b) - 0F_X(0)) - \lim_{b \to \infty}(b - 0) + \int_0^{\infty}R(t)dt \\
        &= \lim_{b \to \infty}bF_X(b) - \lim_{b \to \infty}b + \int_0^{\infty}R(t)dt \\
        &= \lim_{b \to \infty}b\lim_{b \to \infty}F_X(b) - \lim_{b \to \infty}b + \int_0^{\infty}R(t)dt \\
        &= \lim_{b \to \infty}(b - b) + \int_0^{\infty}R(t)dt \\
        &= \int_0^{\infty}R(t)dt
 \end{align*}
+
+\todo[inline]{Discuss the MTTF}
 
 %\begin{align*}
 %x = 3
@@ -108,14 +110,60 @@ density function of $X$ by $f_X(t) = \frac{\partial}{\partial
 
 %%%%%\end{align*}
 
-\subsection{Possible Simplifications}
-Overall parity bit simplification?
-
-Assumption that microcontroller data can be used for error tagging
-even outside of the di\_ready+8cycles intervals?
 
 \subsection{Alternative Solutions}
-- Different voting algorithms
-- Simultaneous calculation of error tags and voted data (is it on critical path?)
-- Store data in register and calculate ECC from these instead of on the fly?
+- Different voting algorithms. Cleaner/faster? Had a 3-LUT one 50 MHz
+faster and 3 LUTs smaller with a bug, but with more tinkering it might
+be possible to get this to work. 
+
+- Simultaneous calculation of error tags and voted data (is it on
+critical path?) Faster?
+
+- Store data in register and calculate ECC from these instead of on
+the fly? Cleaner
+
 - More as described in technote?
+
+\subsection{Possible Simplifications of Current Implementation}
+
+\paragraph{Total Parity Bit Simplification} \hfill \\
+\todo{Reference previous explanation of SECDED bit}. Instead of
+performing this XOR operation with the parity bits themselves, one can
+exploit the fact that the parity bits are simply an XOR of data bits
+to express the overall parity bit just in terms of data bits. To see
+this, let $d(i)$ denote data bit $i$ and $p(j)$ denote parity bit $j$.
+Then, by substituting the equation for calculating $p(0)$ into the
+equation for $p(4)$, we get
+\begin{align*}
+  p(4) &= d(0) \otimes d(1) \otimes \ldots \otimes d(10) \otimes p(0) \otimes p(1) \otimes p(2) \otimes p(3) \\
+  &= d(0) \otimes d(1) \otimes \ldots \otimes d(10) \otimes \\
+  & \qquad (d(0) \otimes d(1) \otimes d(3) \otimes d(4) \otimes d(6)
+  \otimes d(8) \otimes d(10)) \otimes p(1) \otimes p(2) \otimes p(3) \\
+  &= d(2) \otimes d(5) \otimes d(7) \otimes d(9) \otimes p(1) \otimes p(2) \otimes p(3)
+\end{align*}
+
+This substitution and simplification could be done with any desirable
+combination of parity bits to shift the work between performing XOR
+operations with parity bits during the output stage or calculating
+state-enable signals during the data parity count accumulation
+stage. By experimenting with different combinations, it might be
+possible to find a configuration which yields a better
+result than the current solution with no simplification does. 
+
+\paragraph{Weaker Assumptions of Microcontroller Data Lines Validity} \hfill \\
+In our design, we made the assumption that we should not use the input
+data from the microcontrollers to update the error tags outside of
+periods in which they were actually sending a word to the Liaison. If
+this restriction was relaxed, we would be able to remove a few
+registers. The register containing the enable signal, for instance,
+would be of no use. It would also be able to shift the responsibility
+of making the circuit sequential from the input stage to the output
+stage --- instead of using flip-flops for storing the input data from
+the microcontrollers, we could use a flip-flop for maintaining the
+value of the output signals. Since there would no longer be a need to
+avoid updating error tags during a clock period, the prohibiting issue
+of enabling the voter for the first data bit would no longer be
+present.
+
+\todo[inline]{Is this correct? Could we not have flip flops on output now as well? We would just have to update the enable register in a different way.. but wait, it would have to be set when di_ready is high!}
+
