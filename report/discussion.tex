@@ -1,0 +1,14 @@
+\subsection{Lifetime Expectancy Calculations}
+
+
+\subsection{Possible Simplifications}
+Overall parity bit simplification?
+
+Assumption that microcontroller data can be used for error tagging
+even outside of the di_ready+8cycles intervals?
+
+\subsection{Alternative Solutions}
+- Different voting algorithms
+- Simultaneous calculation of error tags and voted data (is it on critical path?)
+- Store data in register and calculate ECC from these instead of on the fly?
+- More as described in technote?
