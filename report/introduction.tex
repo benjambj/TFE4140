@@ -28,7 +28,7 @@ from the duplicated components and sends this as input to the
 peripheral unit.
 
 \subsection{The Problem}
-
+\label{sec:problem}
 Our task was to design a system component, named the Liaison System,
 which handled this problem by taking the latter
 approach. Specifically, the Liaison System was to work in an
@@ -70,8 +70,14 @@ error correcting code which could be used to detect and repair a one
 bit error and detect a two bit error in the data word and status. We
 were required to use a Hamming code\cite{task}\cite{ecc}.
 
-It was also stated that the design should focus on getting a small an
-implementation of this as possible.
+The Liaison was to be implemented using VHDL, and synthesized for the
+FPGA Xilinx Virtex 4. It was stated that the design should focus on
+creating as area stringent as possible. Specifically, the number of
+LUTs required on the FPGA after synthesis should
 
 Finally, in addition to designing the Liaison system, we should also
-perform an evaluation of its expected lifetime.
+perform an evaluation of its expected lifetime. This evaluation should
+consist of a calculation of the probability of an error in maximum one
+controller, maximum two controllers or at least three controllers as a
+function. We should also compute the mean time to failure for the
+entire system, i.e. its expected lifetime.
