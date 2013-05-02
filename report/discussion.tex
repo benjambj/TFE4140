@@ -9,11 +9,18 @@ individual lifetimes are independent.
 
 The first assumption is made because the exponential distribution is
 simple to use for calculations. Even though it is not suitable for
-describing the lifetime of an entire technical device\cite{wikipedia},
-it is still used a lot while still providing an estimate of how the
-system behaves. It was also suggested by the course staff.
+describing the lifetime of an entire technical device, it is used
+extensively in reliability theory\cite{wikipedia}. Thus, it should
+providing an estimate of how the system behaves. It was also suggested
+by the course staff.
 
-The second assumption is also 
+The second assumption is also somewhat optimistic, since the
+microcontrollers are exposed to the same environmental hazards at the
+same time. For instance, a solar flare will most likely strike all the
+microcontrollers simultaneously, and thus microcontroller lifetimes
+are likely to have a non-zero covariance. The assumption is still made
+to make the calculations easier. If a more accurate model is
+desirable, dependence should be taken into account.
 
 \subsection{Possible Simplifications}
 Overall parity bit simplification?
