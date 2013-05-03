@@ -112,6 +112,10 @@ density function of $X$ by $f_X(t) = \frac{\partial}{\partial
 
 
 \subsection{Alternative Solutions}
+One of the major goal on this task was to optimize for area useage. In order to achieve the most
+efficient solution regarding LUT useage, we came up with three fundamentally different solutions.
+Except for the solution described in \autoref{sec:design}, the two 
+
 - Different voting algorithms. Cleaner/faster? Had a 3-LUT one 50 MHz
 faster and 3 LUTs smaller with a bug, but with more tinkering it might
 be possible to get this to work. 
@@ -126,7 +130,7 @@ the fly? Cleaner
 
 \subsection{Possible Simplifications of Current Implementation}
 
-\paragraph{Total Parity Bit Simplification} \hfill \\
+\paragraph{SECDED-bit Simplification} \hfill \\
 \todo{Reference previous explanation of SECDED bit}. Instead of
 performing this XOR operation with the parity bits themselves, one can
 exploit the fact that the parity bits are simply an XOR of data bits
