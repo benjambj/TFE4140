@@ -7,13 +7,20 @@ The test cases was divided into three blocks.
 \begin{itemize}
 \item The first test block consists of 8 tests that asserts the normal behaviour. It is done with some easy cases and a 2 cycle delay between inputs.
 
-\item The second test block consists of 24 cases that at some point broke our logic.  tests where our design was likly to have flaws. During development, these tests were
+\item The second test block consists of 24 cases that at some point broke our logic.  tests where our design was likely to have flaws. During development, these tests were
 triggered often, proving their value.
 
-\item The third and last test block is a permutation of working state and all 4! fail states, each with all MCUs sending
-all possible inputs (all MCUs sends the same value to keep the number of tests down to an affordable number). This block consists of 269 376 different test cases,
-and cover almost any possible state. The states that are not covered are those where one of the MCUs fails in the middle of the transaction, which are covered in
-the second block.
+\item The third and last test block tests all possible microcontroller
+  failure sequences. For each such sequence, it asserts that the
+  correct data is voted and the correct status produced, and that the
+  system functions correctly afterwards with all the microprocessors
+  sending the same word for all 256 different words. The
+  microcontrollers all sending the same word is also tested with no
+  erroneous microcontrollers for each possible word. This block
+  consists of 269 376 different test cases, and cover almost any
+  possible state. The states that are not covered are those where one
+  of the MCUs fails in the middle of the transaction, which are
+  covered in the second block.
 \end{itemize}
 
 Since all permutations of fail states and all permutations of valid input within these states
