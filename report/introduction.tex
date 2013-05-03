@@ -74,9 +74,12 @@ to use a Hamming code\cite{task}\cite{ecc}.
 The Liaison was to be implemented using VHDL, and synthesized for the
 Xilinx Virtex4 XC4VFX12-SF363-12 FPGA. The top level module of the
 Liaison system was required to implement a specified VHDL entity
-interface, listed in \autoref{apx:liaison}. It was stated that the
-design should focus on creating an area stringent a design as
-possible. Specifically, the number of LUTs required on the FPGA after
+interface, listed in \autoref{apx:liaison}. It was also a requirement
+that the {\ttfamily reset} should be synchronous, and that the Liaison
+should be able to handle new data after $11 + m$ clock cycles, with $m$
+been the number of bits used for the error correcting code.
+It was stated that the design should focus on creating an area stringent
+a design as possible. Specifically, the number of LUTs required on the FPGA after
 synthesis should be minimized.
 
 During the design of the Liaison system, we should consider several
