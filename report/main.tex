@@ -78,6 +78,81 @@ showstringspaces=false,
     urlcolor=cyan           % color of external links
 }
 
+
+
+
+% to change colors
+\newcommand{\bordercol}{red}
+
+%% code by Andrew Stacey 
+% http://tex.stackexchange.com/questions/51582/background-coloring-with-overlay-specification-in-algorithm2e-beamer-package#51582
+
+\makeatletter
+\tikzset{%
+     remember picture with id/.style={%
+       remember picture,
+       overlay,
+       save picture id=#1,
+     },
+     save picture id/.code={%
+       \edef\pgf@temp{#1}%
+       \immediate\write\pgfutil@auxout{%
+         \noexpand\savepointas{\pgf@temp}{\pgfpictureid}}%
+     },
+     if picture id/.code args={#1#2#3}{%
+       \@ifundefined{save@pt@#1}{%
+         \pgfkeysalso{#3}%
+       }{
+         \pgfkeysalso{#2}%
+       }
+     }
+   }
+
+   \def\savepointas#1#2{%
+  \expandafter\gdef\csname save@pt@#1\endcsname{#2}%
+}
+
+\def\tmk@labeldef#1,#2\@nil{%
+  \def\tmk@label{#1}%
+  \def\tmk@def{#2}%
+}
+
+\tikzdeclarecoordinatesystem{pic}{%
+  \pgfutil@in@,{#1}%
+  \ifpgfutil@in@%
+    \tmk@labeldef#1\@nil
+  \else
+    \tmk@labeldef#1,(0pt,0pt)\@nil
+  \fi
+  \@ifundefined{save@pt@\tmk@label}{%
+    \tikz@scan@one@point\pgfutil@firstofone\tmk@def
+  }{%
+  \pgfsys@getposition{\csname save@pt@\tmk@label\endcsname}\save@orig@pic%
+  \pgfsys@getposition{\pgfpictureid}\save@this@pic%
+  \pgf@process{\pgfpointorigin\save@this@pic}%
+  \pgf@xa=\pgf@x
+  \pgf@ya=\pgf@y
+  \pgf@process{\pgfpointorigin\save@orig@pic}%
+  \advance\pgf@x by -\pgf@xa
+  \advance\pgf@y by -\pgf@ya
+  }%
+}
+\makeatother
+
+\newcommand{\tikzmarkin}[2][]{%
+      \tikz[remember picture,overlay,baseline=1ex]
+      \draw[double,line width=1pt,#1]
+      (pic cs:#2) -- (0,0);}
+
+
+\newcommand\tikzmarkend[2][]{%
+\tikz[remember picture with id=#2,baseline=1ex] #1;}
+
+
+
+
+
+
 \begin{document}
 
 \input{./title}
