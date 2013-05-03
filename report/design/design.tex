@@ -6,18 +6,20 @@
 
 An overview of our system design is depicted in
 \autoref{fig:overview}. Conceptually, the internals of the Liaison can
-be modeled as four different components, each providing a necessary
-service to the system.
+be modeled as four different components, each responsible for a
+certain task as indicated by their respective names.
 
 \subsection{System Assumptions}
-There are certain elements of the behaviour that is not specified in the requirements, and thus
-we have done some assumptions for our implementation.
+There are certain elements of the system behaviour and environment
+that is not specified in the requirements. We have therefore done some
+assumptions for our implementation.
 
 \begin{itemize}
-\item When data received outside a valid data sequence\footnote{before
-    or more than 8 cycles after a {\ttfamily di\_ready} signal}, we
-  assume that the microcontrollers are not necessarily driving the
-  lines, and thus we can not tag the microcontrollers.
+\item Outside of periods in which the microprocessors are supposed to
+  be sending data to the Liaison\footnote{before or more than 8
+    cycles after a {\ttfamily di\_ready} signal}, we assume that the
+  microcontrollers are not necessarily driving the lines, and thus we
+  cannot tag the microcontrollers.
 
 \item We have assumed that two failing microcontrollers within the
   same clock cycle should not happen. This assumption is made since it
