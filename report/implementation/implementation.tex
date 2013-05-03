@@ -1,8 +1,8 @@
 In this section, we describe how the module designs detailed in
 \autoref{sec:design} are implemented on a Xilinx Virtex4
 XC4VFX12-SF363-12 FPGA. The implementation description is based on the
-synthesis results from using the ISE synthesiser.\todo[fancyline]{Is
-  that what it is called?} The modules are not represented as separate
+synthesis results from using the XST synthesiser from the ISE design
+suite WebPACK Edition. The modules are not represented as separate
 VHDL files or entities, but are only a conceptual model of how the
 system works.
 
@@ -152,12 +152,12 @@ tools are shown.
 
 \begin{table}[htbp]
   \centering
-  \begin{tabular}{|c|p{5cm}|p{5cm}|}
+  \begin{tabular}{|c|c|c|}
     \hline
-    \textbf{Metric} & \todo[inline]{ISE Synthesiser?} Results & Synplify Pro Results \\ \hline
-    Number of LUTs & 32 & \todo[inline]{N/A} \\ \hline
-    Number of flip-flops & 35 & \todo[inline]{N/A} \\ \hline
-    Estimated clock frequency & 318.715 MHz & \todo[inline]{N/A} \\ \hline
+    \textbf{Metric} & XST Synthesiser Results & Synplify Pro Results \\ \hline
+    Number of LUTs & 32 & 37 \\ \hline
+    Number of flip-flops & 35 & 34 \\ \hline
+    Estimated clock frequency & 318.715 MHz & 322 MHz \\ \hline
   \end{tabular}
   \caption{System Results}
   \label{tab:results}
