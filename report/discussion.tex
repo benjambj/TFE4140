@@ -50,7 +50,9 @@ most one controller within a given time $t$ is given by
 \begin{align*}
     Q(4) + Q(3) &= \binom{4}{4}P(t)^4 + \binom{4}{3}P(t)^3(1 - P(t)) \\
                 &= (e^{-\frac{t}{6}})^4  + 4 (e^{-\frac{t}{6}})^3(1 - e^{-\frac{t}{6}}) \\
-                &= 
+                &= e^{-\frac{4}{6}t} + 4e^{-\frac{t}{2}}(1-e^{-\frac{2}{3}t}) \\
+                &= e^{-\frac{2}{3}t} + 4e^{-\frac{1}{2}t} - 4e^{-\frac{2}{3}t} \\
+                &= 4e^{-\frac{1}{2}t} - 3e^{-\frac{2}{3}t}
 \end{align*}
 
 \subsubsection{Calculation of Probability of Error in Maximum Two Controllers}
@@ -60,9 +62,12 @@ four, exactly three or exactly two microcontrollers are still working
 by time $t$. By the same logic as given in
 \autoref{sec:errorinmaxone}, this is the same as
 \begin{align*}
-  &Q(4) + Q(3) + Q(2) = \\
-  &\binom{4}{4}P(t)^4 + \binom{4}{3}P(t)^3(1 - P(t)) + \binom{4}{2}P(t)^2(1 - P(t))^2 = \\
-  &
+  &Q(4) + Q(3) + Q(2) \\
+  &=\binom{4}{4}P(t)^4 + \binom{4}{3}P(t)^3(1 - P(t)) + \binom{4}{2}P(t)^2(1 - P(t))^2 \\
+  &= 4e^{-\frac{1}{2}t} - 3e^{-\frac{2}{3}t} + 6e^{-\frac{1}{3}t}(1-e^{-\frac{t}{6}})^2\\
+  &= 4e^{-\frac{1}{2}t} - 3e^{-\frac{2}{3}t} + 6e^{-\frac{1}{3}t}(1-2e^{-\frac{t}{6}} + e^{-\frac{t}{3}})\\
+  &= 4e^{-\frac{t}{2}} - 3e^{-\frac{2}{3}t} + 6e^{-\frac{1}{3}t} - 12e^{-\frac{t}{2}} + 6e^{-\frac{2}{3}t}\\
+  &= 6e^{-\frac{t}{3}} + 3e^{-\frac{2}{3}t} - 8e^{-\frac{1}{2}t}
 \end{align*}
 
 This function describes the probability that the system is still alive
@@ -75,7 +80,9 @@ complement of the event that at most two controllers have failed
 within time $t$. Thus, this probability is simply the negation of the
 result derived in \autoref{sec:errorinmaxtwo}, which is
 \begin{align*}
-  1 - R(t) = 1 - (Q(4) + Q(3) + Q(2)) = 
+  1 - R(t) &= 1 - (Q(4) + Q(3) + Q(2)) \\
+           &= 1 - (6e^{-\frac{t}{3}} + 3e^{-\frac{2}{3}t} - 8e^{-\frac{1}{2}t}) \\
+           &= 8e^{-\frac{1}{2}t} - 6e^{-\frac{t}{3}} - 3e^{-\frac{2}{3}t} + 1
 \end{align*}
 
 \subsubsection{Mean Time to Failure}
@@ -98,10 +105,21 @@ density function of $X$ by $f_X(t) = \frac{\partial}{\partial
        &= \lim_{b \to \infty}bF_X(b) - \lim_{b \to \infty}b + \int_0^{\infty}R(t)dt \\
        &= \lim_{b \to \infty}b\lim_{b \to \infty}F_X(b) - \lim_{b \to \infty}b + \int_0^{\infty}R(t)dt \\
        &= \lim_{b \to \infty}(b - b) + \int_0^{\infty}R(t)dt \\
-       &= \int_0^{\infty}R(t)dt
+       &= \int_0^{\infty}R(t)dt \\
+       &= \int_0^{\infty}6e^{-\frac{t}{3}} + 3e^{-\frac{2}{3}t} - 8e^{-\frac{1}{2}t}dt \\
+       &= [-18e^{-\frac{t}{3}} - \frac{9}{2}e^{-\frac{2}{3}t} + 16e^{-\frac{1}{2}t}]_0^{\infty} \\
+       &= 0 - (-18 - \frac{9}{2} + 16) = 18 + \frac{9}{2} - 16 \\
+       &= 6.5
 \end{align*}
 
-\todo[inline]{Discuss the MTTF}
+Thus, the expected life time of the entire system is 6.5 years. This
+is an increase of only $8.33 \%$ from the expected life time of a
+system with a single microcontroller. However, as space launches are
+expensive, it might be worth the extra cost of redundancy and liaison
+development to increase the life time of the system as much as
+possible. It is also an added benefit that the microcontroller
+failures are reported together with the data, so that it is possible
+to know the status of the system.
 
 %\begin{align*}
 %x = 3
@@ -109,7 +127,6 @@ density function of $X$ by $f_X(t) = \frac{\partial}{\partial
 %             &= (e^{\frac{t}{6}})^4  + 4 (e^{\frac{t}{6}})^3(1 - e^{\frac{t}{6}})
 
 %%%%%\end{align*}
-
 
 \subsection{Alternative voting algorithms}
 One of the major goal on this task was to optimize for area useage. In order to achieve the most
@@ -150,13 +167,16 @@ the data, but we did not get enought time to test the impact of this approach.
 \subsection{Possible Simplifications of Current Implementation}
 
 \paragraph{SECDED-bit Simplification} \hfill \\
-\todo{Reference previous explanation of SECDED bit}. Instead of
-performing this XOR operation with the parity bits themselves, one can
-exploit the fact that the parity bits are simply an XOR of data bits
-to express the overall parity bit just in terms of data bits. To see
-this, let $d(i)$ denote data bit $i$ and $p(j)$ denote parity bit $j$.
-Then, by substituting the equation for calculating $p(0)$ into the
-equation for $p(4)$, we get
+As explained in \autoref{sec:implementation}, the computation of the
+SECDED bit is split into counting the parity for all the data bits
+while they are being sent, and performing and XOR of all the ECC
+flip-flops when sending it. Instead of performing this XOR operation
+with the parity bits themselves, one can exploit the fact that the
+parity bits are simply an XOR of data bits to express the overall
+parity bit just in terms of data bits. To see this, let $d(i)$ denote
+data bit $i$ and $p(j)$ denote parity bit $j$.  Then, by substituting
+the equation for calculating $p(0)$ into the equation for $p(4)$, we
+get
 \begin{align*}
   p(4) &= d(0) \otimes d(1) \otimes \ldots \otimes d(10) \otimes p(0) \otimes p(1) \otimes p(2) \otimes p(3) \\
   &= d(0) \otimes d(1) \otimes \ldots \otimes d(10) \otimes \\
@@ -178,7 +198,7 @@ In our design, we made the assumption that we should not use the input
 data from the microcontrollers to update the error tags outside of
 periods in which they were actually sending a word to the Liaison. If
 this restriction was relaxed, we would be able to remove a few
-registers. The register containing the enable signal, for instance,
+flip-flops. The flip-flop containing the enable signal, for instance,
 would be of no use. It would also be able to shift the responsibility
 of making the circuit sequential from the input stage to the output
 stage --- instead of using flip-flops for storing the input data from
@@ -186,7 +206,8 @@ the microcontrollers, we could use a flip-flop for maintaining the
 value of the output signals. Since there would no longer be a need to
 avoid updating error tags during a clock period, the prohibiting issue
 of enabling the voter for the first data bit would no longer be
-present.
+present. Since there are only two output signals and four input
+signals, this would require two flip-flops less.
 
 \todo[inline]{Is this correct? Could we not have flip flops on output now as well? We would just have to update the enable register in a different way.. but wait, it would have to be set when di\_ready is high!}
 
