@@ -24,7 +24,7 @@ simulation verifying that the output is also correct with timing taken into acco
 This section explain the conformance with each point in the system requirements specification.
 \begin{enumerate}
 \item{\textbf{The Liaison Interface}} \hfill\\
-    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+    Our implementation of the Liaison System follows the signaling interface given by the requirements\cite{task}.
 
 \item{\textbf{Voting}} \hfill\\
     The Voting algorithm has been tested and confirmed to be working. This was done by enumerating all
@@ -42,7 +42,7 @@ This section explain the conformance with each point in the system requirements 
     included in the same tests as Error tagging and Voting.
 
 \item{\textbf{Error correcting code}} \hfill\\
-    The Error correcting code is a specific part of the requirements. The module was tested by writing
+    The Error correcting code is a specific part of the requirements\cite{task}. The module was tested by writing
     a testbench function that generates (15,11)-Hamming Code with SECDED from an 11-bit word. This
     procedure was added to the enumerated tests from the Voter-test such that for each input, the testbench
     would automatically expect a specific ECC. If the ECC from the function was not equal to the output
@@ -51,13 +51,23 @@ This section explain the conformance with each point in the system requirements 
     software function can be found in \autoref{apx:ecc}.
 
 \item{\textbf{Reset behaviour}} \hfill\\
-    Our implementation of the Liaison System follows the signaling interface given by the requirements.
-
+    On reset, The Liaison is set back to inital state on next clock cycle. The reset is stricly synchronous,
+    as stated in the requirements\cite{task}, and is thus only read on rising edge of the clock. We have
+    tested that reset works for any final state when a data sequence finished, but we have not tested the
+    behavoiur of a reset in the middle of a transmission. By simple code inspection, we see that the
+    reset is not aware of current system status, but simply sets all the state variables back to initial
+    state. That means that after a reset signal is asserted along with rising edge of the clock, the system
+    will not process data until a new {\ttfamily di\_ready}.
 
 \item{\textbf{System consitency}} \hfill\\
-    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+    Taken into account all the tests ran on the Voter, ECC and Status modules, we are sure that the system works consistent
+    with the requirements. Nearly all enumerations of internal state has been verified. We assume that those states that has
+    not been explicitly tested work correctly, as their internals don't differ very much. Examples of this are wherever the MCUs
+    fail at first bit or another bit within the word. We test only for first-bit failures in the exhaustive test, but both the
+    voter and the \todo{write ecc status stuff}
 
 \item{\textbf{New data after $11+m$ cycles}} \hfill\\
+    Most of the test cases send data directly after previous data word was correctly received, so 
     Our implementation of the Liaison System follows the signaling interface given by the requirements.
 
 \end{enumerate}
