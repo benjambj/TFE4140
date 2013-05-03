@@ -182,16 +182,24 @@ microcontroller would require doubling the number of cases and
 creating more complex subexpressions within the blocks.
 
 \subsection{Alternative Overall Design Strategies}
-The way our Liaison System was implemented used a strictly serial datapath through the
-system. This was done due to the thought that a serial design was faster and simpler
-than an equal but parallel design. Anyways, it would have been possible to
-use a serial to parallel converter and stack up the voted results simultainiously as
-the were outputed. This would give us an easier-to-understand ECC calculation, but would most likely
-not have reduces the area usage or given us a faster design.
+The way our Liaison System was implemented used a strictly serial
+datapath through the system. This was done due to the thought that a
+serial design was faster and simpler than an equal but parallel
+design. However, it would have been possible to use a serial to
+parallel converter and stack up the voted results simultaneously as
+they were outputed. This would give us an easier-to-understand ECC
+calculation, since we could have described the parity bits directly as
+equations of the data bits they cover. This would, however, most
+likely not have reduced the area usage or given us a faster
+design. Instead of complexity in combining the parity bit enable
+signals, complexity would have arisen in the combinatoin of the data
+bits. Since the same number of LUTs are required for combining the
+seven data bits covered by each parity bit as the 
 
-In the current design, the voting and the error tagging of the microcontrollers are done
-separatly. It would have been possible to calculate error tags simultainiously with voting
-the data, but we did not get enought time to test the impact of this approach.
+In the current design, the voting and the error tagging of the
+microcontrollers are done separatly. It would have been possible to
+calculate error tags simultainiously with voting the data, but we did
+not get enought time to test the impact of this approach.
 
 \subsection{Possible Simplifications of Current Implementation}
 
