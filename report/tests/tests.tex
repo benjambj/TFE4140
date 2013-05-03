@@ -11,7 +11,7 @@ The test cases was divided into three blocks.
 triggered often, proving their value.
 
 \item The third and last test block is a permutation of working state and all 4! fail states, each with all MCUs sending
-all possible inputs (all MCUs sends the same value to keep the number of tests down to an affordable number). This block consists of 16 836 different test cases,
+all possible inputs (all MCUs sends the same value to keep the number of tests down to an affordable number). This block consists of 269 376 different test cases,
 and cover almost any possible state. The states that are not covered are those where one of the MCUs fails in the middle of the transaction, which are covered in
 the second block.
 \end{itemize}
@@ -60,11 +60,12 @@ This section explain the conformance with each point in the system requirements 
     will not process data until a new {\ttfamily di\_ready}.
 
 \item{\textbf{System consitency}} \hfill\\
-    Taken into account all the tests ran on the Voter, ECC and Status modules, we are sure that the system works consistent
-    with the requirements. Nearly all enumerations of internal state has been verified. We assume that those states that has
-    not been explicitly tested work correctly, as their internals don't differ very much. Examples of this are wherever the MCUs
-    fail at first bit or another bit within the word. We test only for first-bit failures in the exhaustive test, but both the
-    voter and the \todo{write ecc status stuff}
+    Since all possible inputs for both the Voter and the ECC module has been exhaustively tested, and 
+    Since very little of the internal system logic is dependent on both system status and current bit-position,
+    we are sure that the exhaustive tests run on the Voter and the ECC module is sufficient to conclude that 
+    the entire system is consitent with the requirements. All enumerations of fail states have been tested, all combinations
+    of input to the ECC module have been tested, and the Output Multiplexer cares only about current output bit position,
+    and is thus also exhaustivly tested.
 
 \item{\textbf{New data after $11+m$ cycles}} \hfill\\
     Most of the test cases send data directly after previous data word was correctly received, so 
