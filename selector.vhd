@@ -19,7 +19,7 @@ signal use_ab: std_logic;
 
 signal t: std_logic;
 
-signal t1,t2,t3: std_logic_vector(3 downto 0);
+signal t1,t2,t3,t4,t5: std_logic_vector(3 downto 0);
 
 begin
 
@@ -70,7 +70,7 @@ t <= mcu(3) xor mcu(2);
 t3 <= use_ab & ab & cd & t;
 
 with t3 select
-y <= '0' when "1000" | "1001" | "1010" | "1011" | "0000" | "0100" | "0001",
+y <= '0' when "1000" | "1001" | "1010" | "1011" | "0001" | "0101" | "1101" | "0000" ,
 	   '1' when others;
 --y <= '0' when "1000" | "1001" | "1101" | "1111" | "0001" | "0011" | "1001" | "1011" | "
 
