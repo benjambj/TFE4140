@@ -24,13 +24,6 @@
 \usepackage{color}
 \usepackage{textcomp}
 
-\lstset{ %
-literate= {+}{{$+$}}1 {*}{{$*$}}1 {=}{{$\gets$}}1 
-        {<=}{{$\leq$}}1 {>=}{{$\geq$}}1 {!=}{{$\neq$}}1 
-        {==}{{$\equiv$}}1 {=>}{{$\leadsto$}}1
-        {->}{{$\rightarrow$}}1
-}
-
 \definecolor{listinggray}{gray}{0.9}
 \definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
 \lstset{
@@ -122,6 +115,18 @@ showstringspaces=false,
 \section{ECC generation for VHDL Testbench}
 \label{apx:ecc}
 \lstinputlisting[language=VHDL]{apx/ecc.vhd}
+\newpage
+\section{Alternative Voting Algorithm: Bit-counter}
+\label{apx:bitcnt}
+{\ttfamily mcu}  is a vector containig the data from the microcontrollers,
+and {\ttfamily active} is the inverted error tags.
+\lstinputlisting[language=VHDL]{apx/bitcnt.vhd}
+
+\section{Alternative Voting Algortihm: Lookup table}
+\label{apx:table}
+{\ttfamily fails} represents the error tags.
+\lstinputlisting[language=VHDL]{apx/table.vhd}
+
 \bibliographystyle{plain}
 \bibliography{bibliography}
 
