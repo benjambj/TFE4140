@@ -215,17 +215,13 @@ longer be any need to combine the other parity bits for the SECDED
 calculation, which might save us another LUT. The number of flip-flops
 would increase from five to eleven, since we would have to store each
 data bit instead of each parity bit. The impact on estimated clock
-frequency is not clear, since the path through the normal parity bits
-would be shorter as the update  while the path through the SECDED bit would be longer
-
-
-
-This would, however, most
-likely not have reduced the area usage or given us a faster
-design. Instead of complexity in combining the parity bit enable
-signals, complexity would have arisen in the combinatoin of the data
-bits. Since the same number of LUTs are required for combining the
-seven data bits covered by each parity bit as the 
+frequency is not clear, but it is not unlikely that it would be higher
+in this version. The path in the circuit through the normal parity
+bits would be shorter as it would start from the data registers
+instead of going through the voter, in addition the update LUTs being
+removed. The path through SECDED bit would also not involve the
+voter. If any of the ECC bit calculations are on the critical path,
+then the circuit would most likely end up being faster.
 
 In the current design, the voting and the error tagging of the
 microcontrollers are done separatly. It would have been possible to
