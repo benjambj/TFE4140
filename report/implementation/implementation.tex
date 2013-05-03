@@ -1,7 +1,9 @@
 In this section, we describe how the module designs detailed in
 \autoref{sec:design} are implemented on a Xilinx Virtex4
-XC4VFX12-SF363-12 FPGA. The modules are not represented as separate
-VHDL files or entities , but are only a conceptual model of how the
+XC4VFX12-SF363-12 FPGA. The implementation description is based on the
+synthesis results from using the ISE synthesiser.\todo[fancyline]{Is
+  that what it is called?} The modules are not represented as separate
+VHDL files or entities, but are only a conceptual model of how the
 system works.
 
 \subsection{Technology Schematic}
@@ -24,33 +26,46 @@ Maintenance module.
 
 \subsection{Voting Algorithm Implementation}
 The implementation of our voting algorithm, described in
-\autoref{sec:votingalgorithm}, consists of six LUTs and two
-MUXes. Microcontroller 0, 1, 2 and 3 maps to the labels A, B, C and
-D. The input microcontroller data is combined with the error tags
-according to the algorithm, emitting the result of the (A,~B) local
-vote if this is safe to use, the (C,~D) result if this is safe, and
-the ORed result in other cases. 
+\autoref{sec:votingalgorithm}, consists of six LUTs and two MUXes. In
+the implementation, microcontroller 0, 1, 2 and 3 maps to the labels
+A, B, C and D in the design description. The input microcontroller
+data is combined with the error tags according to the algorithm,
+emitting the result of the (A,~B) local vote if this is safe to use,
+the (C,~D) result if this is safe, and the ORed result in other cases.
 
 %NO NO NO red.anm.
 %It is impossible for man to figure out what the hell these LUTs
 %do... they certainly do not match the VHDL code.
 
 \subsection{State Maintenance Implementation}
-The state maintenance is implemented with the required number of
-registers. 
+The state maintenance is implemented with a number of registers, and
+the required logic for updating each of them.
 
 Since we send 16 bits per voted word, the output stage state is
 represented by 16 flip-flops connected in sequence, implementing a
 shift-register. These registers will be referred to as output stage
 bits 1 to 16. 
 
+To update the error tags only during microcontroller data word
+transmission states, we need to produce an enable signal. This signal
+is implemented with a flip-flop which is set when output stage bit 1
+is set, and cleared when output stage bit 9 is set. Since the update
+occurs at the start of each clock cycle, and the enable signal is only
+set on the start of the output stage, we have to use flip-flops to
+keep the input data stable throughout the next clock period. If,
+instead, the output signals were kept stable with flip-flops, the
+error tags calculated from the first data bit would be lost since the
+enable signal would not have been set when they were calculated. Thus,
+we also use four flip-flops to contain the microcontroller data.
+
 The error tags are implemented with four flip-flops. To update the
 error tags, one LUT is used to calculate the new value of each flip
 flop. These LUTs take as input the old error tag value, the
-microcontroller data, the result of the vote and the enable signal. If
-the old error tag was set, the new error tag is also set. Else, if the
-enable signal is high, the error tag is set if the microcontroller
-data differs from the voted data.
+microcontroller data, the result of the vote and the enable
+signal.  If the old error tag
+was set, the new error tag is also set. Else, if the enable signal is
+high, the error tag is set if the microcontroller data differs from
+the voted data.
 
 The status bits are calculated based on the error tags. Since there
 are only four error tags, we can calculate each status bit with one
@@ -126,20 +141,23 @@ combining the last output stage bits. Finally, the data output is
 selected between the ECC bit and the data-status bit based on a signal
 stating whether we should output an ECC bit or not. This signal is
 also the output of a flip-flop, set and cleared based on output stage
-bits. This step requires six LUTs, and the total LUT count for the
-output multiplexing is eight LUTs. 
+bits. This step requires seven LUTs and one MUX, and the total LUT
+count for the output multiplexing is eight LUTs.
 
 \subsection{Results}
 
-The main metrics of our system is given in \autoref{tab:results}
+The main metrics of our system is given in
+\autoref{tab:results}. Metrics found with two different synthesis
+tools are shown.
 
 \begin{table}[htbp]
   \centering
-  \begin{tabular}{|c|c|}
+  \begin{tabular}{|c|p{5cm}|p{5cm}|}
     \hline
-    Number of LUTs & 32 \\ \hline
-    Number of flip-flops & 35 \\ \hline
-    Estimated clock frequency & 318.715 MHz \\ \hline
+    \textbf{Metric} & \todo[inline]{ISE Synthesiser?} Results & Synplify Pro Results \\ \hline
+    Number of LUTs & 32 & \todo[inline]{N/A} \\ \hline
+    Number of flip-flops & 35 & \todo[inline]{N/A} \\ \hline
+    Estimated clock frequency & 318.715 MHz & \todo[inline]{N/A} \\ \hline
   \end{tabular}
   \caption{System Results}
   \label{tab:results}
