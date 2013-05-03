@@ -111,22 +111,45 @@ density function of $X$ by $f_X(t) = \frac{\partial}{\partial
 %%%%%\end{align*}
 
 
-\subsection{Alternative Solutions}
-- Different voting algorithms. Cleaner/faster? Had a 3-LUT one 50 MHz
-faster and 3 LUTs smaller with a bug, but with more tinkering it might
-be possible to get this to work. 
+\subsection{Alternative voting algorithms}
+One of the major goal on this task was to optimize for area useage. In order to achieve the most
+efficient solution regarding LUT useage, we came up with three fundamentally different solutions
+for the voting process. Except for the solution described in \autoref{sec:design}, the two other
+designs were as follow:
 
-- Simultaneous calculation of error tags and voted data (is it on
-critical path?) Faster?
+\subsubsection{Bit counter}
+One of the alternate designs were based on a counter. For each microcontroller, if a controller
+was not tagged, and its data value was high, the counter was incremented. Otherwise, if the
+microcontroller had low output (and still not tagged), the counter was decremented. The output of
+the voting module was\\\hspace*{.3in}{\ttfamily if cnt > 0 then 1 else 0}\\
+This assures that the majority vote of the working microcontrollers are output, and 0 if the vote is a tie.
 
-- Store data in register and calculate ECC from these instead of on
-the fly? Cleaner
+This algorithm was easy to understand, it was flexible regarding number of microcontrollers, and it was easy
+to be convinced that the design worked properly. A major disadvantage was that the counter used a lot of
+LUTs, and the system then used 19 LUTs without output selection and ECC. The code for this implementation can
+be found in \autoref{apx:bitcnt}
 
-- More as described in technote?
+\subsubsection{Lookup table}
+In the search for another method to do the voting, we decided to build a lookup table using
+a simple VHDL switch statement and then let the synthesis tool find a good mapping towards
+the 4-input LUTs on the Xilinx FPGA. This approach also used 19 LUTs, was not that flexible,
+but maybe even easier to understand.\autoref{apx:table}
+
+\subsection{Alternative overall design strategies}
+The way our Liaison System was implemented used a strictly serial datapath through the
+system. This was done due to the thought that a serial design was faster and simpler
+than an equal but parallel design. Anyways, it would have been possible to
+use a serial to parallel converter and stack up the voted results simultainiously as
+the were outputed. This would give us an easier-to-understand ECC calculation, but would most likely
+not have reduces the area usage or given us a faster design.
+
+In the current design, the voting and the error tagging of the microcontrollers are done
+separatly. It would have been possible to calculate error tags simultainiously with voting
+the data, but we did not get enought time to test the impact of this approach.
 
 \subsection{Possible Simplifications of Current Implementation}
 
-\paragraph{Total Parity Bit Simplification} \hfill \\
+\paragraph{SECDED-bit Simplification} \hfill \\
 \todo{Reference previous explanation of SECDED bit}. Instead of
 performing this XOR operation with the parity bits themselves, one can
 exploit the fact that the parity bits are simply an XOR of data bits
@@ -165,5 +188,5 @@ avoid updating error tags during a clock period, the prohibiting issue
 of enabling the voter for the first data bit would no longer be
 present.
 
-\todo[inline]{Is this correct? Could we not have flip flops on output now as well? We would just have to update the enable register in a different way.. but wait, it would have to be set when di_ready is high!}
+\todo[inline]{Is this correct? Could we not have flip flops on output now as well? We would just have to update the enable register in a different way.. but wait, it would have to be set when di\_ready is high!}
 
