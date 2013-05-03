@@ -23,54 +23,54 @@ simulation verifying that the output is also correct with timing taken into acco
 \subsection{Conformance with requirements specification}
 This section explain the conformance with each point in the system requirements specification.
 \begin{enumerate}
-\item{\textbf{The Liaison Interface}} \hfill\\
-    Our implementation of the Liaison System follows the signaling interface given by the requirements\cite{task}.
+    \item{\textbf{The Liaison Interface}} \hfill\\
+        Our implementation of the Liaison System follows the signaling interface given by the requirements\cite{task}.
 
-\item{\textbf{Voting}} \hfill\\
-    The Voting algorithm has been tested and confirmed to be working. This was done by enumerating all
-    permutations of input and state, and then check the Voters result against expected output using
-    VHDL assertions.
+    \item{\textbf{Voting}} \hfill\\
+        The Voting algorithm has been tested and confirmed to be working. This was done by enumerating all
+        permutations of input and state, and then check the Voters result against expected output using
+        VHDL assertions.
 
-\item{\textbf{Error tagging}} \hfill\\
-    The error tagging is not specified in the requirements, but is nessesary in our implementation to
-    achieve correct System Status bits and correct Voting. The error tagging was tested with the same
-    tests as the Voting algorithm and does conform with the expected behaviour.
+    \item{\textbf{Error tagging}} \hfill\\
+        The error tagging is not specified in the requirements, but is nessesary in our implementation to
+        achieve correct System Status bits and correct Voting. The error tagging was tested with the same
+        tests as the Voting algorithm and does conform with the expected behaviour.
 
-\item{\textbf{System status}} \hfill\\
-    The System Status is needed to tell the receiver about the wellness of the microcontrollers. Since
-    there exists a direct mapping between the Error tagging and the System Status, this is also
-    included in the same tests as Error tagging and Voting.
+    \item{\textbf{System status}} \hfill\\
+        The System Status is needed to tell the receiver about the wellness of the microcontrollers. Since
+        there exists a direct mapping between the Error tagging and the System Status, this is also
+        included in the same tests as Error tagging and Voting.
 
-\item{\textbf{Error correcting code}} \hfill\\
-    The Error correcting code is a specific part of the requirements\cite{task}. The module was tested by writing
-    a testbench function that generates (15,11)-Hamming Code with SECDED from an 11-bit word. This
-    procedure was added to the enumerated tests from the Voter-test such that for each input, the testbench
-    would automatically expect a specific ECC. If the ECC from the function was not equal to the output
-    of the Liaison, assertions were raised to the tester. Since the soft function agrees with the simulated
-    hardware, we are certain that the ECC-module works as specified in the requirements. The ECC-generating
-    software function can be found in \autoref{apx:ecc}.
+    \item{\textbf{Error correcting code}} \hfill\\
+        The Error correcting code is a specific part of the requirements\cite{task}. The module was tested by writing
+        a testbench function that generates (15,11)-Hamming Code with SECDED from an 11-bit word. This
+        procedure was added to the enumerated tests from the Voter-test such that for each input, the testbench
+        would automatically expect a specific ECC. If the ECC from the function was not equal to the output
+        of the Liaison, assertions were raised to the tester. Since the soft function agrees with the simulated
+        hardware, we are certain that the ECC-module works as specified in the requirements. The ECC-generating
+        software function can be found in \autoref{apx:ecc}.
 
-\item{\textbf{Reset behaviour}} \hfill\\
-    On reset, The Liaison is set back to inital state on next clock cycle. The reset is stricly synchronous,
-    as stated in the requirements\cite{task}, and is thus only read on rising edge of the clock. We have
-    tested that reset works for any final state when a data sequence finished, but we have not tested the
-    behavoiur of a reset in the middle of a transmission. By simple code inspection, we see that the
-    reset is not aware of current system status, but simply sets all the state variables back to initial
-    state. That means that after a reset signal is asserted along with rising edge of the clock, the system
-    will not process data until a new {\ttfamily di\_ready}.
+    \item{\textbf{Reset behaviour}} \hfill\\
+        On reset, The Liaison is set back to inital state on next clock cycle. The reset is stricly synchronous,
+        as stated in the requirements\cite{task}, and is thus only read on rising edge of the clock. We have
+        tested that reset works for any final state when a data sequence finished, but we have not tested the
+        behavoiur of a reset in the middle of a transmission. By simple code inspection, we see that the
+        reset is not aware of current system status, but simply sets all the state variables back to initial
+        state. That means that after a reset signal is asserted along with rising edge of the clock, the system
+        will not process data until a new {\ttfamily di\_ready}.
 
-\item{\textbf{System consitency}} \hfill\\
-    Since all possible inputs for both the Voter and the ECC module has been exhaustively tested, and 
-    Since very little of the internal system logic is dependent on both system status and current bit-position,
-    we are sure that the exhaustive tests run on the Voter and the ECC module is sufficient to conclude that 
-    the entire system is consitent with the requirements. All enumerations of fail states have been tested, all combinations
-    of input to the ECC module have been tested, and the Output Multiplexer cares only about current output bit position,
-    and is thus also exhaustivly tested.
+    \item{\textbf{System consitency}} \hfill\\
+        Since all possible inputs for both the Voter and the ECC module has been exhaustively tested, and 
+        Since very little of the internal system logic is dependent on both system status and current bit-position,
+        we are sure that the exhaustive tests run on the Voter and the ECC module is sufficient to conclude that 
+        the entire system is consitent with the requirements. All enumerations of fail states have been tested, all combinations
+        of input to the ECC module have been tested, and the Output Multiplexer cares only about current output bit position,
+        and is thus also exhaustivly tested.
 
-\item{\textbf{New data after $11+m$ cycles}} \hfill\\
-    Most of the test cases send data directly after previous data word was correctly received, and we have
-    added a few tests where there is a delay between each received word. Thus, the system works as required,
-    and is able to receive new data after $11+m$ clock cycles. This is shown in \autoref{fig:timing}
+    \item{\textbf{New data after $11+m$ cycles}} \hfill\\
+        Most of the test cases send data directly after previous data word was correctly received, and we have
+        added a few tests where there is a delay between each received word. Thus, the system works as required,
+        and is able to receive new data after $11+m$ clock cycles. This is shown in \autoref{fig:timing}
 
 \end{enumerate}
 
