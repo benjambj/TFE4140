@@ -96,10 +96,10 @@ result derived in \autoref{sec:errorinmaxtwo}, which is
 
 \subsubsection{Mean Time to Failure}
 The mean time to system failure is the expected value of a stochastic
-variable $X$ denoting time until at least three microcontrollers have
-failed. Now, $Prob\{X \le t\} = Prob\{\text{System has failed within
-  time } t\}$, so the cumulative distribution function of $X$,
-$F_X(t)$, is given by the result in
+variable $X$ denoting the number of years until at least three
+microcontrollers have failed. Now, $Prob\{X \le t\} =
+Prob\{\text{System has failed within time } t\}$, so the cumulative
+distribution function of $X$, $F_X(t)$, is given by the result in
 \autoref{sec:errorinatleastthree}. If we denote the probability
 density function of $X$ by $f_X(t) = \frac{\partial}{\partial
   t}F_x(t)$, we get that
@@ -194,6 +194,7 @@ microcontroller would require doubling the number of cases and
 creating more complex subexpressions within the blocks.
 
 \subsection{Alternative Overall Design Strategies}
+\label{sec:alternativeoveralldesign}
 The way our Liaison System was implemented used a strictly serial
 datapath through the system. This was done due to the thought that a
 serial design was faster and simpler than an equal but parallel
@@ -201,7 +202,25 @@ design. However, it would have been possible to use a serial to
 parallel converter and stack up the voted results simultaneously as
 they were outputed. This would give us an easier-to-understand ECC
 calculation, since we could have described the parity bits directly as
-equations of the data bits they cover. This would, however, most
+equations of the data bits they cover. This strategy could possibly
+have reduced the number of LUTs. To calculate each parity bit apart
+from the SECDED bit, the same LUT structure as was used in calculating
+the parity enable signals described in \autoref{sec:eccimplementation}
+could be used. However, the four LUTs used to control updates to the
+parity bit registers would no longer be necessary, and so this scheme
+could omit these four LUTs. For the SECDED bit, two LUTs would have to
+be used to calculate its value instead of the single LUT used to
+control its update in the current design. However, there would no
+longer be any need to combine the other parity bits for the SECDED
+calculation, which might save us another LUT. The number of flip-flops
+would increase from five to eleven, since we would have to store each
+data bit instead of each parity bit. The impact on estimated clock
+frequency is not clear, since the path through the normal parity bits
+would be shorter as the update  while the path through the SECDED bit would be longer
+
+
+
+This would, however, most
 likely not have reduced the area usage or given us a faster
 design. Instead of complexity in combining the parity bit enable
 signals, complexity would have arisen in the combinatoin of the data
@@ -256,7 +275,8 @@ value of the output signals. Since there would no longer be a need to
 avoid updating error tags during a clock period, the prohibiting issue
 of enabling the voter for the first data bit would no longer be
 present. Since there are only two output signals and four input
-signals, this would require two flip-flops less.
+signals which must be kept stable, this would require two flip-flops
+less.
 
 \todo[inline]{Is this correct? Could we not have flip flops on output now as well? We would just have to update the enable register in a different way.. but wait, it would have to be set when di\_ready is high!}
 
