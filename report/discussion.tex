@@ -164,22 +164,22 @@ bit counter implementation can be found in \autoref{apx:bitcnt}
 In the search for another method to do the voting, we decided to build
 a lookup table using a simple VHDL switch statement in which the
 expression for the majority vote was looked up for each possible
-configuration of error tags. The idea was to give the synthesis tool
-as much freedom as possible in doing the mapping of the expression
-onto the 4-input LUTs on the Xilinx FPGA. Using this solution, we got
-got 17 LUTs for the system without output selection and ECC, with an
+configuration of error tags. This code can be seen in
+\autoref{apx:table}. The idea was to give the synthesis tool as much
+freedom as possible in doing the mapping of the expression onto the
+4-input LUTs on the Xilinx FPGA. Using this solution, we got got 17
+LUTs for the system without output selection and ECC, with an
 estimated clock frequency of 271.3 MHz. The synthesis tool was
 therefore either not clever enough in its processing of the VHDL code,
 or we had been unable to write an expression that was sufficiently
-easy to interpret or . An advantage of this solution was that it was
-very easy to read, so it might 
-
- gave the syntesis tool 
-
-
- and then let the
-synthesis tool find a good mapping. This approach also used 19 LUTs, was not that flexible,
-but maybe even easier to understand.\autoref{apx:table}
+easy to interpret or nonstrict in the case of don't care
+conditions. An advantage of this solution was that it was very easy to
+read, so it might be worth spending more time on tweaking the
+expressions to fit the synthesiser. This might, however, reduce the
+clarity of the expression. A disadvantage of this solution compared to
+the bit counter, is that it is not as flexible since adding a
+microcontroller would require doubling the number of cases and
+creating more complex subexpressions within the blocks.
 
 \subsection{Alternative Overall Design Strategies}
 The way our Liaison System was implemented used a strictly serial datapath through the
