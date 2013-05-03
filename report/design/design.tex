@@ -1,4 +1,3 @@
-\label{sec:design}
 The Liaison System is created to assure that the correct data collected from a microcontrollers is received correctly by the end user.
 To achieve this, the system uses four equal but distinct microcontrollers, an internal voting system to assure that if any of the microcontrollers
 disagree, it is marked as malfunctioning and is no longer allowed to send output. The output from the Liaison is extended with a system status
@@ -65,38 +64,72 @@ none of the conditions in rows above it hold.
   \begin{tabular}{|p{7cm}|c|}
     \hline
     \textbf{Condition} & \textbf{Result} \\ \hline
-    A, B untagged and (A,B)-result is not a tie & (A, B)-result \\ \hline
-    (C, D)-result is not a tie & (C, D)-result \\ \hline
-    Neither pair is safe  & (A, B)-result $\vee$ (C, D)-result \\ \hline
+    A, B untagged and (A,B)-result is not a tie & (A,~B)-result \\ \hline
+    Data from C and D is equal & (C,~D)-result \\ \hline
+    Neither pair is safe  & (A,~B)-result $\vee$ (C,~D)-result \\ \hline
   \end{tabular}
   \label{tab:globalvote}
 \end{table}
 
 First, it checks whether both A and B are untagged and have the same
 data value. If this is the case, then the output from the local vote
-of (A, B) will have two votes, which is enough to ensure either
-majority or a tie no matter what the result from (C, D) is.
+of (A,~B) will have two votes, which is enough to ensure either
+majority or a tie no matter what the result from (C,~D) is.
 
 If this is not the case, then either A or B is faulty, and the (A,
-B)-result represents at most one vote. If the (C, D)-result is not a
-tie, then it represents two, one or zero votes to the (C, D)-result
-without providing any votes which could strengthen the (A, B)-result.
+B)-result represents at most one vote. If the data from
+microcontroller C and D is the same, then it represents two, one or
+zero votes to the (C,~D)-result without providing any votes which
+could strengthen the (A,~B)-result.
 
 \begin{itemize}
-\item If the (C, D)-result represents two votes, it will 
+\item If the (C,~D)-result represents two votes, it is the majority
+  result, since the (A,~B) group can oppose it with at most one vote. 
+  
+\item If the (C,~D)-result represents one vote
+  \begin{itemize}
+  \item If the (A,~B)-result is a tie, then the (C,~D)-result will be
+    the decisive vote. 
+  \item If the (A,~B)-result represents one vote, then the (C,
+    D)-result is either the majority result or there is a tie. In
+    either case, the (C,~D)-result is a valid result from the vote.
+  \item If the (C,~D)-result represents zero votes, then the system is
+  \end{itemize}
+
+\item If the (C,~D)-result represents zero votes, then the system must
+  be broken since the (A,~B) result only represents at most one vote
+  and as such only one microcontroller is still functioning correctly.
 \end{itemize}
 
+If the data from C and D is not the same, then neither pair of
+microcontroller is guaranteed to represent the majority on its
+own. The remaining possibilities are as follows
 
-If the (C, D)-result represents two votes, it is the majority result,
-and if it represents zero votes the system is broken so it does not
-matter what is voted. If the (C, D)-result represents only one vote,
+\begin{itemize}
+\item If the (A,~B)-result is a tie, then its value is zero. It is
+  thus safe to output this value ORed with the (C,~D)-result, which is
+  the decisive vote.
 
+\item If the (A,~B)-result represents a single vote
+  \begin{itemize}
+  \item If the (C,~D)-result is a tie, then by the same reason as in
+    the first point (A,~B)-result $\vee$ (C,~D)-result is a valid
+    voting result.
 
+  \item If the (C,~D)-result also represents a single vote
+    \begin{itemize}
+    \item If the (A,~B)-result equals the (C,~D)-result, (A,~B)-result
+      $\vee$ (C,~D)-result will produce this value.
+    \item If the results are not equal, the vote is a tie and the
+      output can be anything.
+    \end{itemize}
+  \end{itemize}
 
+\item Any other condition represents a system broken state, in which
+  only one or zero microcontrollers are still working. For these
+  scenarios, the result from the vote does not matter.
 
-
-To perform this voting, the voter arranges the input data from the microcontroller 
-
+\end{itemize}
 
 \subsection{State maintainance}
 The State Maintainance module is responsible for all internal states
