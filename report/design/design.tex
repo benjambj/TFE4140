@@ -16,27 +16,28 @@ assumptions for our implementation.
 
 \begin{itemize}
 \item Outside of periods in which the microprocessors are supposed to
-  be sending data to the Liaison\footnote{before or more than 8
-    cycles after a {\ttfamily di\_ready} signal}, we assume that the
-  microcontrollers are not necessarily driving the lines, and thus we
-  cannot tag the microcontrollers.
+  be sending data to the Liaison\footnote{before or more than 8 cycles
+    after a {\ttfamily di\_ready} signal, see \autoref{apx:liaison}},
+  we assume that the microcontrollers are not necessarily driving the
+  lines, and thus we cannot tag the microcontrollers.
 
 \item We have assumed that two failing microcontrollers within the
   same clock cycle should not happen. This assumption is made since it
   is, in general, not possible to detect the simultaneous failure of
   two or more microcontrollers. For instance, if three controllers are
-  left, and two of them fail and produce the wrong output, they will
-  be assumed to be working while the microcontroller that is actually
-  producing correct results will be tagged as erroneous. Since there
-  is no other distinction between the microcontrollers than the data
-  they produce, it will be impossible to detect a difference between
-  this situation and one in which one microcontroller fails. If four
-  microcontrollers are working, and two fails, the system logic will
-  select two controllers for failure without knowing which really has
-  failed. If the selection was correct, the system will continue
-  functioning; if not, the two failed microcontrollers that was left
-  as working will most likely shortly provide inconsitent data, and
-  the system will be considered broken.
+  left, and two of them fail and produce the wrong output, since they
+  represent the majority they will be assumed to be working while the
+  microcontroller that is actually producing correct results will be
+  tagged as erroneous. Since there is no other distinction between the
+  microcontrollers than the data they produce, it will be impossible
+  to detect a difference between this situation and one in which one
+  microcontroller fails. If four microcontrollers are working, and two
+  fails, the system logic will therefore select two controllers for
+  failure without knowing which really has failed. If this selection
+  was correct, the system will continue functioning; if not, the two
+  failed microcontrollers that was left as working will most likely
+  shortly provide inconsitent data, and the system will be considered
+  broken.
 
 \item The requirements do not specify what data should be output when
   the system is failing. We assume that since the receiver will know
