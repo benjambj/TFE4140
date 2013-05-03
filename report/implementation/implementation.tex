@@ -123,8 +123,8 @@ voted data, a status bit or an ECC bit --- should be output next. This
 selection is performed in several stages. 
 
 One stage chooses between the voted data bit and the status bits. One
-LUT is used to compute which of the two least significant status bits
-if any should be output, and 0 otherwise. Then, a second LUT combines
+LUT is used to compute which of the two least significant status bits,
+if any, should be output, and 0 otherwise. Then, a second LUT combines
 this bit with the voted data bit, the most significant status bit, and
 a signal stating whether we should send a data bit or not. This signal
 is the output of a register which is set at the same time as output
