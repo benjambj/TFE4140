@@ -38,6 +38,7 @@ the (C,~D) result if this is safe, and the ORed result in other cases.
 %do... they certainly do not match the VHDL code.
 
 \subsection{State Maintenance Implementation}
+\label{sec:statemaintenance}
 The state maintenance is implemented with a number of registers, and
 the required logic for updating each of them.
 
@@ -48,15 +49,15 @@ bits 1 to 16.
 
 To update the error tags only during microcontroller data word
 transmission states, we need to produce an enable signal. This signal
-is implemented with a flip-flop which is set when output stage bit 1
-is set, and cleared when output stage bit 9 is set. Since the update
-occurs at the start of each clock cycle, and the enable signal is only
-set on the start of the output stage, we have to use flip-flops to
-keep the input data stable throughout the next clock period. If,
-instead, the output signals were kept stable with flip-flops, the
-error tags calculated from the first data bit would be lost since the
-enable signal would not have been set when they were calculated. Thus,
-we also use four flip-flops to contain the microcontroller data.
+is implemented with a flip-flop which is set when di\_ready is set,
+and cleared when output stage bit 8 is set. Since the update occurs at
+the start of each clock cycle, and the enable signal is only set on
+the start of the output stage, we have to use flip-flops to keep the
+input data stable throughout the next clock period. If, instead, the
+output signals were kept stable with flip-flops, the error tags
+calculated from the first data bit would be lost since the enable
+signal would not have been set when they were calculated. Thus, we
+also use four flip-flops to contain the microcontroller data.
 
 The error tags are implemented with four flip-flops. To update the
 error tags, one LUT is used to calculate the new value of each flip
