@@ -270,7 +270,8 @@ In our design, we made the assumption that we should not use the input
 data from the microcontrollers to update the error tags outside of
 periods in which they were actually sending a word to the Liaison. If
 this restriction was relaxed, we would be able to remove a few
-flip-flops. The flip-flop containing the enable signal, for instance,
+flip-flops. The flip-flop containing the enable signal, which is described
+in \autoref{sec:statemaintenance},
 would be of no use. It would also be able to shift the responsibility
 of making the circuit sequential from the input stage to the output
 stage --- instead of using flip-flops for storing the input data from
@@ -281,6 +282,3 @@ of enabling the voter for the first data bit would no longer be
 present. Since there are only two output signals and four input
 signals which must be kept stable, this would require two flip-flops
 less.
-
-\todo[inline]{Is this correct? Could we not have flip flops on output now as well? We would just have to update the enable register in a different way.. but wait, it would have to be set when di\_ready is high!}
-
