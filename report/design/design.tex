@@ -167,11 +167,11 @@ own. The remaining possibilities are as follows
 
 \subsection{State maintainance}
 The State Maintainance module is responsible for all internal states
-of the system. The system keeps track of what microcontrollers that
-can no longer be trusted. This works by tagging those microcontrollers
-were the signal differs from the voted signal from the Voter
-module. When a microcontroller has been tagged, the tag is not cleared
-until the entire system is reset.
+of the system. The system keeps track of whic microcontrollers can no
+longer be trusted. This works by tagging the microcontrollers whose
+data signal differs from the voted signal from the Voter module. When
+a microcontroller has been tagged, the tag is not cleared until the
+entire system is reset.
 
 This module also outputs a system status vector as part of the Liaison
 output. This vector has one of four states as shown in
