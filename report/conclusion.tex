@@ -6,7 +6,10 @@ correcting code using (15,11)-Hamming code with SECDED, which allows the receive
 The project has given us a wider insight in the world of VHDL and hardware design. We have used a significant amount on both testing and
 on area optimization, which both counts as important experience. The end result was a circuit with a decent area usage compared to the
 expected results given by the cource staff, and we are quite happy with the outcome. We do believe, however, that there are still room for
-improvements, as there are parts of the VHDL code that was not tweaked extensively.
+improvements, as there are parts of the VHDL code that was not tweaked extensively. Possible simplifications of the current system includes
+parallel calculation of the ECC bits as described in \autoref{sec:alternativeoveralldesign} might have saved us a few LUTs, but added a few
+registers. In addition, we had a selection algorithm that used only 3 LUTs, but there was a bug we were unable to fix. However, we believe
+that with some more tinkering, a sub 30 LUT solution exists.
 
 Our project was tested using over 260 000 test vectors, which should cover most of the interesting cases, but is still not system wide
 exhaustive. As the course also introduced formal verification, we think that a more advanced approach would utilized the formal methods.
