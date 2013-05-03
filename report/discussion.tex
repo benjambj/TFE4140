@@ -248,12 +248,12 @@ parity bits are simply an XOR of data bits to express the overall
 parity bit just in terms of data bits. To see this, let $d(i)$ denote
 data bit $i$ and $p(j)$ denote parity bit $j$.  Then, by substituting
 the equation for calculating $p(0)$ into the equation for $p(4)$, we
-get
+get blabla
 \begin{align*}
   p(4) &= d(0) \otimes d(1) \otimes \ldots \otimes d(10) \otimes p(0) \otimes p(1) \otimes p(2) \otimes p(3) \\
   &= d(0) \otimes d(1) \otimes \ldots \otimes d(10) \otimes \\
-  & \qquad (d(0) \otimes d(1) \otimes d(3) \otimes d(4) \otimes d(6)
-  \otimes d(8) \otimes d(10)) \otimes p(1) \otimes p(2) \otimes p(3) \\
+  & \qquad \underbrace{(d(0) \otimes d(1) \otimes d(3) \otimes d(4) \otimes d(6)
+  \otimes d(8) \otimes d(10))}_{\text{Equation for }p(0)}  \otimes p(1) \otimes p(2) \otimes p(3) \\
   &= d(2) \otimes d(5) \otimes d(7) \otimes d(9) \otimes p(1) \otimes p(2) \otimes p(3)
 \end{align*}
 
