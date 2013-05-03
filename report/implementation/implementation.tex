@@ -49,7 +49,7 @@ bits 1 to 16.
 
 To update the error tags only during microcontroller data word
 transmission states, we need to produce an enable signal. This signal
-is implemented with a flip-flop which is set when di\_ready is set,
+is implemented with a flip-flop which is set when {\ttfamily di\_ready} is set,
 and cleared when output stage bit 8 is set. Since the update occurs at
 the start of each clock cycle, and the enable signal is only set on
 the start of the output stage, we have to use flip-flops to keep the
@@ -123,8 +123,8 @@ voted data, a status bit or an ECC bit --- should be output next. This
 selection is performed in several stages. 
 
 One stage chooses between the voted data bit and the status bits. One
-LUT is used to compute which of the two least significant status bits
-if any should be output, and 0 otherwise. Then, a second LUT combines
+LUT is used to compute which of the two least significant status bits,
+if any, should be output, and 0 otherwise. Then, a second LUT combines
 this bit with the voted data bit, the most significant status bit, and
 a signal stating whether we should send a data bit or not. This signal
 is the output of a register which is set at the same time as output
