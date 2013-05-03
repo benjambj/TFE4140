@@ -13,6 +13,10 @@ we can be more certain that the signal is not distorted on its way to the reciev
 As we can see from \autoref{fig:overview}, the internals of the Liaison can be modeled as four different pieces of hardware, each providing a
 nessesary service to the system.
 
+\subsection{System Assumptions}
+\todo[inline]{Write about the assumptions (maybe not here, but somewhere)}
+
+
 \subsection{Voting algorithm}
 The system needs to distinguish between the working and the malfunctioning microcontrollers. To do this, the voting module knows what microcontrollers
 that has shown sign of failure from earlier voting, and it needs to vote for the majority result of working microcontrollers. This modules
@@ -30,13 +34,34 @@ At last, the State Maintainance module is also responsible for counting what out
 where different sections of the stream have different sources (data, status, ECC), we need to keep track of the position of the current data bit.
 
 \subsection{Error Correcting Code Generator}
-To provide reliable output for long distance transmission of data, the Liaison System adds an error correcting code to its data packets. The Error
-Correcting Code Generator generates (16,11)-Hamming code on the fly and attaches the code at the end of the output stream. This module uses information
-from the Voter to get the first 8 data bits and information from the State Maintainance to get the status word. It also uses information on current 
-data bit position from the State Maintainance module, since Hamming Code is generated using parity of bits at specific positions\cite{ecc}.
+To provide reliable output for long distance transmission of data, the
+Liaison System was required to add an error correcting code (ECC) to
+its data packets. As stated in \autoref{sec:problem}, the ECC should
+be able to correct one bit errors and detect two bit errors. To
+fulfill the first criteria, we use a (15, 11)
+Hamming-code\cite{ecc}. Since the Liaison sends eleven data bits ---
+eight for the voted data and three for the status --- using four
+parity bits is sufficient to provide detection and correction for one
+bit errors. To be able to detect two bit errors, one can use an extra
+parity bit covering all the transmitted bits, including data, status
+and the four other ECC bits. This final parity bit is called
+SECDED-bit, since it makes the Hamming code a Single Error Correction
+Double Error Detection code\cite{ecc}. For simlicity, we will refer to
+this error correction code scheme as a (16, 11) Hamming code.
 
-When (16,11)-Hamming code is used, we are able to correct a single error in the packet, but we are also able to detect up to two errors in the same packet.
-The first 4 bits in the Hamming code is used for error correction of a single bit, and the additional bit adds the ability to detect another error.
+The Error Correcting Code Generator generates (16,11) Hamming code on
+the fly and attaches the code at the end of the output stream. This
+module uses information from the Voter to get the first w8 data bits
+and information from the State Maintainance to get the status word. It
+also uses information on current data bit position from the State
+Maintainance module, since Hamming Code is generated using parity of
+bits at specific positions\cite{ecc}.
+
+When (16,11)-Hamming code is used, we are able to correct a single
+error in the packet, but we are also able to detect up to two errors
+in the same packet.  The first 4 bits in the Hamming code is used for
+error correction of a single bit, and the additional bit adds the
+ability to detect another error.
 
 \subsection{Output mulitplexer}
 Since the Liaison System needs to send output from each of the three other modules at specific clock cycles when specific events has occured, we need
