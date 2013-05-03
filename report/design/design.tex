@@ -44,20 +44,20 @@ assumptions for our implementation.
   that the system is broken, the data sequence can be whatever it
   likes. The most easy solution is therefore to output whatever the
   combinatorial circuits responsible for the voted data output, and we
-  have not created any special logic to adjust the data message.
+  will not create any special logic to adjust the data message.
 
 \end{itemize}
 
 
 \subsection{Voting algorithm}
 \label{sec:votingalgorithm}
-The system needs to distinguish between the working and the
-malfunctioning microcontrollers. To do this, the voting module knows
-what microcontrollers that has shown sign of failure from earlier
-voting, and it needs to vote for the majority result of working
-microcontrollers. This modules receives input directly from the
-microcontrollers, and it gets the current system state from the State
-Maintainance module.
+The system needs to to vote for the majority result of working
+microcontrollers, and this is the responsibility of the Voting
+module. To perform this task, the voting module must know which
+microcontrollers have previously shown signs of failure by producing
+different non-majority output in earlier votes. The module receives
+input directly from the microcontrollers, and it gets the error tags
+of each microcontroller from the State Maintainance module.
 
 The algorithm in our design works by partitioning the microcontrollers
 into two pairs. For the following explanation, the microcontrollers
