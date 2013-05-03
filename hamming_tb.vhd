@@ -53,7 +53,10 @@ ARCHITECTURE behavior OF hamming_tb IS
     return lp.all;
   end;
 
-
+	function "ror" (v: std_logic_vector; i: integer) return std_logic_vector is
+	begin
+		return v(i-1 downto 0) & v(v'length-1 downto i);
+	end function;
  
     COMPONENT liaison
     PORT(
@@ -87,6 +90,7 @@ ARCHITECTURE behavior OF hamming_tb IS
 		shared variable bv : datavector;
 		shared variable cv : datavector;
 		shared variable dv : datavector;
+		shared variable ev : datavector; -- expected voting
 	
 function gen_ecc(d: std_logic_vector(7 downto 0); s: std_logic_vector(2 downto 0))
 		return std_logic_vector is
@@ -351,26 +355,74 @@ BEGIN
 		--------------------------------------------------------------
 		-- Hardened tests for internal state persitence and failure orderings
 		
-		av(0) := X"80";
-		av(1) := X"00";
-		av(2) := X"00";
-		av(3) := X"00";
 		
-		bv(0) := X"00";
-		bv(1) := X"80";
-		bv(2) := X"00";
-		bv(3) := X"00";
+		ev(0) := X"00";
+		ev(1) := X"FF";
 		
-		cv(0) := X"00";
-		cv(1) := X"00";
-		cv(2) := X"80";
-		cv(3) := X"00";
+		for vectortest in 1 downto 0 loop
+			if vectortest = 0 then
+				av(0) := X"80";
+				av(1) := X"00";
+				av(2) := X"00";
+				av(3) := X"00";
+				
+				bv(0) := X"00";
+				bv(1) := X"80";
+				bv(2) := X"00";
+				bv(3) := X"00";
 		
-		dv(0) := X"00";
-		dv(1) := X"00";
-		dv(2) := X"00";
-		dv(3) := X"80";
+				cv(0) := X"00";
+				cv(1) := X"00";
+				cv(2) := X"80";
+				cv(3) := X"00";
 		
+				dv(0) := X"00";
+				dv(1) := X"00";
+				dv(2) := X"00";
+				dv(3) := X"80";
+			else
+				av(0) := X"7F";
+				av(1) := X"FF";
+				av(2) := X"FF";
+				av(3) := X"FF";
+		
+				bv(0) := X"FF";
+				bv(1) := X"7F";
+				bv(2) := X"FF";
+				bv(3) := X"FF";
+		
+				cv(0) := X"FF";
+				cv(1) := X"FF";
+				cv(2) := X"7F";
+				cv(3) := X"FF";
+		
+				dv(0) := X"FF";
+				dv(1) := X"FF";
+				dv(2) := X"FF";
+				dv(3) := X"7F";
+			end if;
+			for shift in 0 to 7 loop
+				av(0) := av(0) ror 1;
+				av(1) := av(1) ror 1;
+				av(2) := av(2) ror 1;
+				av(3) := av(3) ror 1;
+		
+				bv(0) := bv(0) ror 1;
+				bv(1) := bv(1) ror 1;
+				bv(2) := bv(2) ror 1;
+				bv(3) := bv(3) ror 1;
+		
+				cv(0) := cv(0) ror 1;
+				cv(1) := cv(1) ror 1;
+				cv(2) := cv(2) ror 1;
+				cv(3) := cv(3) ror 1;
+		
+				dv(0) := dv(0) ror 1;
+				dv(1) := dv(1) ror 1;
+				dv(2) := dv(2) ror 1;
+				dv(3) := dv(3) ror 1;
+				
+				
 		for input in 0 to 255 loop
 			i := std_logic_vector(to_unsigned(input,8));
 			test_ecc(i, "000");
@@ -378,7 +430,7 @@ BEGIN
 		
 		for a in 0 to 3 loop
 			note("Testvector {" & integer'image(a)& "}");
-			test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
+			test_ecc(av(a), bv(a), cv(a), dv(a), ev(vectortest), "001");
 			for input in 0 to 255 loop
 				i := std_logic_vector(to_unsigned(input,8));
 				test_ecc(i, "001");
@@ -387,9 +439,9 @@ BEGIN
 			for b in 0 to 3 loop
 				if a /= b then
 					reset_liaison;
-					test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
+					test_ecc(av(a), bv(a), cv(a), dv(a), ev(vectortest), "001");
 					note("Testvector {" & integer'image(a) & ", " & integer'image(b) & "}");
-					test_ecc(av(b), bv(b), cv(b), dv(b), X"00", "010");	
+					test_ecc(av(b), bv(b), cv(b), dv(b), ev(vectortest), "010");	
 					for input in 0 to 255 loop
 						i := std_logic_vector(to_unsigned(input,8));
 						test_ecc(i, "010");
@@ -398,10 +450,10 @@ BEGIN
 					for c in 0 to 3 loop
 						if a /= c and b /= c then
 							reset_liaison;
-							test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
-							test_ecc(av(b), bv(b), cv(b), dv(b), X"00", "010");	
+							test_ecc(av(a), bv(a), cv(a), dv(a), ev(vectortest), "001");
+							test_ecc(av(b), bv(b), cv(b), dv(b), ev(vectortest), "010");	
 							note("Testvector {" & integer'image(a) & ", " & integer'image(b) & ", " & integer'image(c) & "}");
-							test_ecc(av(c), bv(c), cv(c), dv(c), X"00", "111", false);					
+							test_ecc(av(c), bv(c), cv(c), dv(c), ev(vectortest), "111", false);					
 							for input in 0 to 255 loop
 								i := std_logic_vector(to_unsigned(input,8));
 								test_ecc(i, "111", false);
@@ -410,11 +462,11 @@ BEGIN
 							for d in 0 to 3 loop
 								if a /= d and b /= d and c /= d then
 									reset_liaison;
-									test_ecc(av(a), bv(a), cv(a), dv(a), X"00", "001");
-									test_ecc(av(b), bv(b), cv(b), dv(b), X"00", "010");	
-									test_ecc(av(c), bv(c), cv(c), dv(c), X"00", "111", false);					
+									test_ecc(av(a), bv(a), cv(a), dv(a), ev(vectortest), "001");
+									test_ecc(av(b), bv(b), cv(b), dv(b), ev(vectortest), "010");	
+									test_ecc(av(c), bv(c), cv(c), dv(c), ev(vectortest), "111", false);					
 									note("Testvector {" & integer'image(a) & ", " & integer'image(b) & ", "	& integer'image(c) &	", " & integer'image(d) &	"}");
-									test_ecc(av(d), bv(d), cv(d), dv(d), X"00", "111", false);
+									test_ecc(av(d), bv(d), cv(d), dv(d), ev(vectortest), "111", false);
 									for input in 0 to 255 loop
 										i := std_logic_vector(to_unsigned(input,8));
 										test_ecc(i, "111", false);
@@ -427,6 +479,10 @@ BEGIN
 			end loop;
 			reset_liaison;
 		end loop;
+		
+		end loop; --shift
+		end loop; --vector
+
 		
 		
 		--------------------------------------------------------------
