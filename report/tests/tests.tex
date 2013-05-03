@@ -23,9 +23,14 @@ triggered often, proving their value.
   covered in the second block.
 \end{itemize}
 
-Since all permutations of fail states and all permutations of valid input within these states
-were applied to the circuit during simulation, we are confident that the Liaison System is working correctly. We have also tested the circuit with a post-place and route
-simulation verifying that the output is also correct with timing taken into account\footnote{The timing simulation was done with iSim from Xilinx, synthesised with XST. Both tools are part of the ISE Design Suite}.
+Since all permutations of failure sequences and all permutations of
+valid input within these states were applied to the circuit during
+simulation, we are confident that the Liaison System is working
+correctly. We have also tested the circuit with a post-place and route
+simulation verifying that the output is also correct with timing taken
+into account\footnote{The timing simulation was done with iSim from
+  Xilinx, synthesised with XST. Both tools are part of the ISE Design
+  Suite}.
 
 \subsection{Conformance with requirements specification}
 This section explain the conformance with each point in the system requirements specification.
@@ -44,7 +49,7 @@ This section explain the conformance with each point in the system requirements 
         tests as the Voting algorithm and does conform with the expected behaviour.
 
     \item{\textbf{System status}} \hfill\\
-        The System Status is needed to tell the receiver about the wellness of the microcontrollers. Since
+        The System Status is needed to tell the receiver about the health of the microcontrollers. Since
         there exists a direct mapping between the Error tagging and the System Status, this is also
         included in the same tests as Error tagging and Voting.
 
@@ -68,7 +73,7 @@ This section explain the conformance with each point in the system requirements 
 
     \item{\textbf{System consitency}} \hfill\\
         Since all possible inputs for both the Voter and the ECC module has been exhaustively tested, and 
-        Since very little of the internal system logic is dependent on both system status and current bit-position,
+        since very little of the internal system logic is dependent on both system status and current bit-position,
         we are sure that the exhaustive tests run on the Voter and the ECC module is sufficient to conclude that 
         the entire system is consitent with the requirements. All enumerations of fail states have been tested, all combinations
         of input to the ECC module have been tested, and the Output Multiplexer cares only about current output bit position,
