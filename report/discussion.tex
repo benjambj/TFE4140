@@ -224,9 +224,17 @@ voter. If any of the ECC bit calculations are on the critical path,
 then the circuit would most likely end up being faster.
 
 In the current design, the voting and the error tagging of the
-microcontrollers are done separatly. It would have been possible to
-calculate error tags simultainiously with voting the data, but we did
-not get enought time to test the impact of this approach.
+microcontrollers are done separately. It would have been possible to
+calculate error tags simultaneously with voting the data, which might
+have increased the estimated maximum clock frequency since the path to
+the error tag update signal would not have to pass through the
+majority vote calculation. If this was on the critical path, the
+circuit speed could increase. It would, however, most likely require
+more than one LUT per bit to calculate the next error tag value, since
+one basically would have to perform the voting logic only with the
+intention of calculating an error tag instead of a majority
+vote. Therefore, the area requirements would most likely have been
+greater than the current solution.
 
 \subsection{Possible Simplifications of Current Implementation}
 
