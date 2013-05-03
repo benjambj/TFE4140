@@ -19,7 +19,7 @@ we have done some assumptions for our implementation.
 
 \begin{itemize}
     \item When data received outside a valid data sequence\footnote{before or more than 8 cycles after a {\ttfamily di\_ready} signal}, we
-        assume that the system is floating, and we do not tag the microcontrollers.
+        assume that the microcontrollers are not necessarily driving the lines, and thus we can not tag the microcontrollers.
     \item We have assumed that two failing microcontrollers within the same clock cycle shoud not happen.
         Anyways, if three controllers are left, and two more fails, it will be impossible to detect. If four microcontrollers are working, and two fails, the
         system logic will select two controllers for failure without knowing which really has failed. If it was correct, the system will keep
