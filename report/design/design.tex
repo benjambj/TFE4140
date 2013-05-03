@@ -33,6 +33,7 @@ we have done some assumptions for our implementation.
 
 
 \subsection{Voting algorithm}
+\label{sec:votingalgorithm}
 The system needs to distinguish between the working and the
 malfunctioning microcontrollers. To do this, the voting module knows
 what microcontrollers that has shown sign of failure from earlier
@@ -181,21 +182,34 @@ parity bit covering all the transmitted bits, including data, status
 and the four other ECC bits. This final parity bit is called
 SECDED-bit, since it makes the Hamming code a Single Error Correction
 Double Error Detection code\cite{ecc}. For simlicity, we will refer to
-this error correction code scheme as a (16, 11) Hamming code.
+this error correction code scheme as a (16, 11) Hamming code. The
+calculation of the parity bit is shown in \autoref{tab:hammingcode},
+showing which data bits are covered by each parity bit.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Hamming Code Data Bit Coverage}
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+   & d0 & d1 & d2 & d3 & d4 & d5 & d6 & d7 & d8 & d9 & d10 & p0 & p1 & p2 & p3 & p4 \\ \hline
+p0 & X  & X  &    & X  & X  &    & X  &    & X  &    & X   & X  &    &    &    &    \\ \hline
+p1 & X  &    & X  & X  &    & X  & X  &    &    & X  & X   &    & X  &    &    &    \\ \hline
+p2 &    & X  & X  & X  &    &    &    & X  & X  & X  & X   &    &    & X  &    &    \\ \hline
+p3 &    &    &    &    & X  & X  & X  & X  & X  & X  & X   &    &    &    & X  &    \\ \hline
+p4 & X  & X  & X  & X  & X  & X  & X  & X  & X  & X  & X   & X  & X  & X  & X  & X  \\ \hline
+    
+  \end{tabular}
+  \label{tab:hammingcode}
+\end{table}
+
 
 The Error Correcting Code Generator generates (16,11) Hamming code on
 the fly and attaches the code at the end of the output stream. This
-module uses information from the Voter to get the first w8 data bits
-and information from the State Maintainance to get the status word. It
-also uses information on current data bit position from the State
-Maintainance module, since Hamming Code is generated using parity of
-bits at specific positions\cite{ecc}.
-
-When (16,11)-Hamming code is used, we are able to correct a single
-error in the packet, but we are also able to detect up to two errors
-in the same packet.  The first 4 bits in the Hamming code is used for
-error correction of a single bit, and the additional bit adds the
-ability to detect another error.
+module uses information from the Voter to get the first eight data
+bits and information from the State Maintainance to get the status
+word. It also uses information of current data bit position from the
+State Maintainance module, since Hamming Code is generated using
+parity of bits at specific positions\cite{ecc}.
 
 \subsection{Output Multiplexer}
 Since the Liaison System needs to send output from each of the three other modules at specific clock cycles when specific events has occured, we need
