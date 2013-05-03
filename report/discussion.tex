@@ -52,8 +52,9 @@ most one controller within a given time $t$ is given by
                 &= (e^{-\frac{t}{6}})^4  + 4 (e^{-\frac{t}{6}})^3(1 - e^{-\frac{t}{6}}) \\
                 &= e^{-\frac{4}{6}t} + 4e^{-\frac{t}{2}}(1-e^{-\frac{2}{3}t}) \\
                 &= e^{-\frac{2}{3}t} + 4e^{-\frac{1}{2}t} - 4e^{-\frac{2}{3}t} \\
-   \tikzmarkin[black]{a}
-         &= 4e^{-\frac{1}{2}t} - 3e^{-\frac{2}{3}t}
+                &=
+    \tikzmarkin[black]{a}
+         4e^{-\frac{1}{2}t} - 3e^{-\frac{2}{3}t}
   \tikzmarkend{a}\\
 \end{align*}
 
@@ -69,8 +70,9 @@ by time $t$. By the same logic as given in
   &= 4e^{-\frac{1}{2}t} - 3e^{-\frac{2}{3}t} + 6e^{-\frac{1}{3}t}(1-e^{-\frac{t}{6}})^2\\
   &= 4e^{-\frac{1}{2}t} - 3e^{-\frac{2}{3}t} + 6e^{-\frac{1}{3}t}(1-2e^{-\frac{t}{6}} + e^{-\frac{t}{3}})\\
   &= 4e^{-\frac{t}{2}} - 3e^{-\frac{2}{3}t} + 6e^{-\frac{1}{3}t} - 12e^{-\frac{t}{2}} + 6e^{-\frac{2}{3}t}\\
+  &=
   \tikzmarkin[black]{b}
-        &= 6e^{-\frac{t}{3}} + 3e^{-\frac{2}{3}t} - 8e^{-\frac{1}{2}t}
+        6e^{-\frac{t}{3}} + 3e^{-\frac{2}{3}t} - 8e^{-\frac{1}{2}t}
   \tikzmarkend{b}\\
 \end{align*}
 
@@ -86,8 +88,9 @@ result derived in \autoref{sec:errorinmaxtwo}, which is
 \begin{align*}
   1 - R(t) &= 1 - (Q(4) + Q(3) + Q(2)) \\
            &= 1 - (6e^{-\frac{t}{3}} + 3e^{-\frac{2}{3}t} - 8e^{-\frac{1}{2}t}) \\
+           &=
   \tikzmarkin[black]{c}
-           &= 8e^{-\frac{1}{2}t} - 6e^{-\frac{t}{3}} - 3e^{-\frac{2}{3}t} + 1
+           8e^{-\frac{1}{2}t} - 6e^{-\frac{t}{3}} - 3e^{-\frac{2}{3}t} + 1
   \tikzmarkend{c}\\
 \end{align*}
 
@@ -115,8 +118,9 @@ density function of $X$ by $f_X(t) = \frac{\partial}{\partial
        &= \int_0^{\infty}6e^{-\frac{t}{3}} + 3e^{-\frac{2}{3}t} - 8e^{-\frac{1}{2}t}dt \\
        &= [-18e^{-\frac{t}{3}} - \frac{9}{2}e^{-\frac{2}{3}t} + 16e^{-\frac{1}{2}t}]_0^{\infty} \\
        &= 0 - (-18 - \frac{9}{2} + 16) = 18 + \frac{9}{2} - 16 \\
+       &=
   \tikzmarkin[black]{d}
-       &= 6.5
+       6.5
   \tikzmarkend{d}\\
 \end{align*}
 
