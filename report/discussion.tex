@@ -128,31 +128,60 @@ to know the status of the system.
 
 %%%%%\end{align*}
 
-\subsection{Alternative voting algorithms}
-One of the major goal on this task was to optimize for area useage. In order to achieve the most
-efficient solution regarding LUT useage, we came up with three fundamentally different solutions
-for the voting process. Except for the solution described in \autoref{sec:design}, the two other
-designs were as follow:
+\subsection{Alternative Voting Algorithms}
+One of the major goal on this task was to optimize for area useage. In
+order to achieve the most efficient solution regarding LUT useage, we
+came up with three fundamentally different solutions for the voting
+process. Except for the solution described in \autoref{sec:design},
+the two other designs were as follow:
 
-\subsubsection{Bit counter}
-One of the alternate designs were based on a counter. For each microcontroller, if a controller
-was not tagged, and its data value was high, the counter was incremented. Otherwise, if the
-microcontroller had low output (and still not tagged), the counter was decremented. The output of
+\subsubsection{Bit Counter}
+One of the alternate designs were based on a counter. For each
+microcontroller, if a controller was not tagged, and its data value
+was high, the counter was incremented. Otherwise, if the
+microcontroller had low output (and still not tagged), the counter was
+decremented. The output of
 the voting module was\\\hspace*{.3in}{\ttfamily if cnt > 0 then 1 else 0}\\
-This assures that the majority vote of the working microcontrollers are output, and 0 if the vote is a tie.
+This assures that the majority vote of the working microcontrollers
+are output, and 0 if the vote is a tie.
 
-This algorithm was easy to understand, it was flexible regarding number of microcontrollers, and it was easy
-to be convinced that the design worked properly. A major disadvantage was that the counter used a lot of
-LUTs, and the system then used 19 LUTs without output selection and ECC. The code for this implementation can
-be found in \autoref{apx:bitcnt}
+This algorithm was easy to understand, it was flexible regarding
+number of microcontrollers, and it was easy to be convinced that the
+design worked properly. A major disadvantage was that the counter used
+a lot of LUTs, required for the integer addition and comparison. In
+addition, to count just the values from the active microcontrollers
+two auxilliary four bit vectors were created. To calculate each bit a
+LUT was required, so this used eight LUTs. In total the system used 19
+LUTs without output selection and ECC, while the current solution uses
+13 without these modules enabled. The estimated clock frequency was
+280 MHz, while the current system has an estimate of 306 MHz. It was
+therefore also slower, and although this metric could not have tipped
+the scales as the most important design goal was area it made it clear
+that the current solution was the best alternative. The code for the
+bit counter implementation can be found in \autoref{apx:bitcnt}
 
-\subsubsection{Lookup table}
-In the search for another method to do the voting, we decided to build a lookup table using
-a simple VHDL switch statement and then let the synthesis tool find a good mapping towards
-the 4-input LUTs on the Xilinx FPGA. This approach also used 19 LUTs, was not that flexible,
+\subsubsection{Lookup Table}
+In the search for another method to do the voting, we decided to build
+a lookup table using a simple VHDL switch statement in which the
+expression for the majority vote was looked up for each possible
+configuration of error tags. The idea was to give the synthesis tool
+as much freedom as possible in doing the mapping of the expression
+onto the 4-input LUTs on the Xilinx FPGA. Using this solution, we got
+got 17 LUTs for the system without output selection and ECC, with an
+estimated clock frequency of 271.3 MHz. The synthesis tool was
+therefore either not clever enough in its processing of the VHDL code,
+or we had been unable to write an expression that was sufficiently
+easy to interpret or . An advantage of this solution was that it was
+very easy to read, so it might 
+
+ gave the syntesis tool 
+
+
+ and then let the
+synthesis tool find a good mapping. This approach also used 19 LUTs, was not that flexible,
 but maybe even easier to understand.\autoref{apx:table}
 
-\subsection{Alternative overall design strategies}
+\subsection{Alternative Overall Design Strategies}
 The way our Liaison System was implemented used a strictly serial datapath through the
 system. This was done due to the thought that a serial design was faster and simpler
 than an equal but parallel design. Anyways, it would have been possible to
