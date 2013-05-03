@@ -68,9 +68,14 @@ This section explain the conformance with each point in the system requirements 
     and is thus also exhaustivly tested.
 
 \item{\textbf{New data after $11+m$ cycles}} \hfill\\
-    Most of the test cases send data directly after previous data word was correctly received, so 
-    Our implementation of the Liaison System follows the signaling interface given by the requirements.
+    Most of the test cases send data directly after previous data word was correctly received, and we have
+    added a few tests where there is a delay between each received word. Thus, the system works as required,
+    and is able to receive new data after $11+m$ clock cycles. This is shown in \autoref{fig:timing}
 
 \end{enumerate}
 
-\todo{Include timing diagrams}
+\begin{figure}
+    \includegraphics[width=\textwidth]{tests/timing}
+    \caption{Timing diagram of data received with minimum delay}
+    \label{fig:timing}
+\end{figure}
